@@ -8,7 +8,7 @@ Byte  short  int  long float  double  boolean  char
 比如：把int转化成Integer，double转化成Double，等等。反之就是自动拆箱。
 - 原始类型: boolean，char，byte，short，int，long，float，double
 - 封装类型：Boolean，Character，Byte，Short，Integer，Long，Float，Double
-示例：
+- 示例：
 Integer i = 10;
 这个过程中会自动根据数值创建对应的 Integer对象，这就是装箱。
 那什么是拆箱呢？顾名思义，跟装箱对应，就是自动将包装器类型转换为基本数据类型：
