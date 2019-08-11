@@ -199,7 +199,34 @@ public String(String original) {
     this.hash = original.hash;
 }
 ```
-# 1.16 String中的hashcode以及toString
+# 1.16 string有重写 Object的 hashcode和 toString吗?如果重写 equals不重写 hashcode会出现什么问题
 ![](http://ww1.sinaimg.cn/large/007s8HJUly1g5w4sq64ymj30xf0bvtfd.jpg)
 
+在存储散列集合时〔如Set类),如果原对象equals新对象,但没有对 hashCode重写,即两个对象拥有不同的hashCode,则在集合中将会存储两个值相同的对象,从而导致混看。因此在重写 equals方法时,必须重写 hashCode
+# 1.17 String中的“+”是如何实现的？
+https://www.cnblogs.com/xiaoxi/p/6036701.html
+```
+String c = "xx" + "yy " + a + "zz" + "mm" + b; 实质上的实现过程是： String c = new StringBuilder("xxyy ").append(a).append("zz").append("mm").append(b).toString();
+底层通过 StringBuilder实现
+```
+# 1.18 Java 如何进行文件读取？
 
+1.首先获得一个文件句柄。 File fille= new File(;file即为文件句柄。两人之间连
+
+通电话网络了。接下来可以开始打电话了
+
+
+2.通过这条线路读取甲方的信息: new FileInputStream(fe)目前这个信息已经
+
+读进来内存当中了。接下来需要解读成乙方可以理解的东西
+
+3.既然你使用了 FileInputStream()。那么对应的需要使用 InputStream Reader(
+
+这个方法进行解读刚才装进来内存当中的数据
+
+
+4.解读完成后要输出呀。那当然要转换成ⅠO可以识别的数据呀。那就需要调用字节
+
+码读取的方法 Bufferedreader()。同时使用 buffered Reader(的 readline()方
+
+法读取txt文件中的每一行数据哈。
