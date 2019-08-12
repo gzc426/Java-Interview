@@ -221,3 +221,6 @@ FileReader类是将文件按字符流的方式读取char数组或者String.FileI
 - 4.解读完成后要输出呀。那当然要转换成IO可以识别的数据呀。那就需要调用字节
 码读取的方法 Bufferedreader()。同时使用 bufferedReader()的 readline()方
 法读取txt文件中的每一行数据哈。
+# 1.19 反射
+![](http://ww1.sinaimg.cn/large/007s8HJUly1g5xbl9l6brj30xl0gygyf.jpg)
+![](http://ww1.sinaimg.cn/large/007s8HJUly1g5xblf6b2yj30lr0gb7dv.jpg)
