@@ -225,3 +225,21 @@ FileReader类是将文件按字符流的方式读取char数组或者String.FileI
 ![](http://ww1.sinaimg.cn/large/007s8HJUly1g5xbl9l6brj30xl0gygyf.jpg)
 
 ![](http://ww1.sinaimg.cn/large/007s8HJUly1g5xblf6b2yj30lr0gb7dv.jpg)
+
+反射机制中可以获取private成员的值吗（没有set和get函数）
+# 1.19 JDK和JRE的区别？
+- Java运行时环境(JRE)。它包括Java虚拟机、Java核心类库和支持文件。它不包含开发工具（JDK）--编译器、调试器和其他工具。
+- Java开发工具包(JDK)是完整的Java软件开发包，包含了JRE，编译器和其他的工具(比如：JavaDoc，Java调试器)，可以让开发者开发、编译、执行Java应用程序。
+
+![](http://ww1.sinaimg.cn/large/007s8HJUly1g5xbpno6p2j311u0knjzt.jpg)
+# 1.20 static和final
+## (1) static和final区别
+
+![](http://ww1.sinaimg.cn/large/007s8HJUly1g5xbub06cdj30mn08lgot.jpg)
+
+## (2) final的好处：
+1.final关键字提高了性能。JVM和Java应用都会缓存final变量。
+2.final变量可以安全的在多线程环境下进行共享，而不需要额外的同步开销。
+3.使用final关键字，JVM会对方法、变量及类进行优化。
+## （3）static方法是否可以覆盖？
+static方法不能被覆盖，因为方法覆盖是基于运行时动态绑定的，而static方法是编译时静态绑定的。static方法跟类的任何实例都不相关，所以概念上不适用。
