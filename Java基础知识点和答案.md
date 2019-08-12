@@ -243,3 +243,16 @@ FileReader类是将文件按字符流的方式读取char数组或者String.FileI
 3.使用final关键字，JVM会对方法、变量及类进行优化。
 ## （3）static方法是否可以覆盖？
 static方法不能被覆盖，因为方法覆盖是基于运行时动态绑定的，而static方法是编译时静态绑定的。static方法跟类的任何实例都不相关，所以概念上不适用。
+# 1.21 session和cookie区别
+
+![](http://ww1.sinaimg.cn/large/007s8HJUly1g5xc3l5kikj30px075n0q.jpg)
+
+cookie是Web服务器发送给浏览器的一块信息。浏览器会在本地文件中给每一个Web服务器存储cookie。以后浏览器在给特定的Web服务器发请求的时候，同时会发送所有为该服务器存储的cookie。下面列出了session和cookie的区别：
+无论客户端浏览器做怎么样的设置，session都应该能正常工作。客户端可以选择禁用cookie，但是，session仍然是能够工作的，因为客户端无法禁用服务端的session。
+在存储的数据量方面session和cookies也是不一样的。session能够存储任意的Java对象，cookie只能存储String类型的对象。
+服务器端Session的保存
+Cookie和session区别
+session在服务器上以怎样的形式存在session持久化
+怎么设置session和cookie的有效时间
+Session的实现原理和应用场景 Session原理; 既然Session是存储在服务器内存的, 
+
