@@ -255,3 +255,34 @@ session在服务器上以怎样的形式存在session持久化
 怎么设置session和cookie的有效时间
 Session的实现原理和应用场景 Session原理; 既然Session是存储在服务器内存的, 
 
+# 1.22 finalize finalization finally
+## 一．finalize用途
+答：垃圾回收器(garbage colector)决定回收某对象时，就会运行该对象的finalize()方法 但是在Java中很不幸，如果内存总是充足的，那么垃圾回收可能永远不会进行，也就是说filalize()可能永远不被执行，显然指望它做收尾工作是靠不住的。 那么finalize()究竟是做什么的呢？它最主要的用途是回收特殊渠道申请的内存。Java程序有垃圾回收器，所以一般情况下内存问题不用程序员操心。但有一种JNI(Java Native Interface)调用non-Java程序（C或C++），finalize()的工作就是回收这部分的内存。
+## 二．finally
+finally 一定会被执行，如果 finally 里有 return 语句，则覆盖 try/catch 里的 return ， 
+比较爱考的是 finally 里没有 return 语句，这时虽然 finally 里对 return 的值进行了修改，但 return 的值并不改变这种情况
+## 三．finally代码块和finalize()方法有什么区别？
+无论是否抛出异常，finally代码块都会执行，它主要是用来释放应用占用的资源。finalize()方法是Object类的一个protected方法，它是在对象被垃圾回收之前由Java虚拟机来调用的。
+# 1.23 public private default protected
+![](http://ww1.sinaimg.cn/large/007s8HJUly1g5yfwftsjrj30ha06wjsq.jpg)
+不写时默认为default。默认对于同一个包中的其他类相当于公开（public），对于不是同一个包中的其他类相当于私有（private）。受保护（protected）对子类相当于公开，对不是同一包中的没有父子关系的类相当于私有。
+不可以覆盖private的方法，因为private修饰的变量和方法只能在当前类中使用，如果是其他的类继承当前类是不能访问到private变量或方法的，当然也不能覆盖
+# 1.24 Object有哪些方法？
+
+- hashcode() 
+- equals() 
+- toString() 
+- getClass() 
+- wait 
+- notify() 
+- notifyAll()
+- finalize()
+
+# 1.25 equals和==
+
+- （1）对于==，如果作用于基本数据类型的变量（byte,short,char,int,long,float,double,boolean ），则直接比较其存储的"值"是否相等；如果作用于引用类型的变量（String），则比较的是所指向的对象的地址（即是否指向同一个对象）。
+- （2）equals方法是基类Object中的方法，因此对于所有的继承于Object的类都会有该方法。在Object类中，equals方法是用来比较两个对象的引用是否相等，即是否指向同一个对象。
+- （3）对于equals方法，注意：equals方法不能作用于基本数据类型的变量。如果没有对equals方法进行重写，则比较的是引用类型的变量所指向的对象的地址；而String类对equals方法进行了重写，用来比较指向的字符串对象所存储的字符串是否相等。其他的一些类诸如Double，Date，Integer等，都对equals方法进行了重写用来比较指向的对象所存储的内容是否相等。
+- （4）StringBuffer 和StringBuilder特殊，==和equal都是比较地址
+
+    
