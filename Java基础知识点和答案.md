@@ -414,7 +414,6 @@ https://www.cnblogs.com/huangliting/p/5746950.html
 ![](https://images2015.cnblogs.com/blog/1004782/201608/1004782-20160807193558668-1200087629.png)
 ![](https://images2015.cnblogs.com/blog/1004782/201608/1004782-20160807193607762-955819376.png)
 InputStreamReader 和 OutputStreamReader ：
-
 把一个以字节为导向的 stream 转换成一个以字符为导向的 stream 。
 InputStreamReader 类是从字节流到字符流的桥梁：它读入字节，并根据指定的编码方式，将之转换为字符流。
 使用的编码方式可能由名称指定，或平台可接受的缺省编码方式。
