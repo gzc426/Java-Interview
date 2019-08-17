@@ -369,9 +369,9 @@ http://www.importnew.com/24029.html
 ```
 - 9. Array中可以用泛型吗?
 这可能是Java泛型面试题中最简单的一个了，当然前提是你要知道Array事实上并不支持泛型，这也是为什么Joshua Bloch在Effective Java一书中建议使用List来代替Array，因为List可以提供编译期的类型安全保证，而Array却不能。
-
 - 10. 如何阻止Java中的类型未检查的警告?
 如果你把泛型和原始类型混合起来使用，例如下列代码，Java 5的javac编译器会产生类型未检查的警告，例如　　
-
-       List<String> rawList = new ArrayList()
+```
+List<String> rawList = new ArrayList()
+```
     
