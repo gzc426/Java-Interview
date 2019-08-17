@@ -263,6 +263,11 @@ finally 一定会被执行，如果 finally 里有 return 语句，则覆盖 try
 比较爱考的是 finally 里没有 return 语句，这时虽然 finally 里对 return 的值进行了修改，但 return 的值并不改变这种情况
 ## 三．finally代码块和finalize()方法有什么区别？
 无论是否抛出异常，finally代码块都会执行，它主要是用来释放应用占用的资源。finalize()方法是Object类的一个protected方法，它是在对象被垃圾回收之前由Java虚拟机来调用的。
+## 四. finally到底是在return之前执行还是return之后执行？
+https://mp.weixin.qq.com/s?__biz=MzI5MzYzMDAwNw==&mid=2247485244&idx=1&sn=162035183aa027b887fc642fddc4ad69&scene=19&token=557705008&lang=zh_CN#wechat_redirect
+## 五. final关键字详解
+https://mp.weixin.qq.com/s?__biz=MzI5MzYzMDAwNw==&mid=2247485027&idx=1&sn=f565be7c5ce33e9737d94ce9a58bd0ea&scene=19&token=557705008&lang=zh_CN#wechat_redirect
+
 # 1.23 public private default protected
 ![](http://ww1.sinaimg.cn/large/007s8HJUly1g5yfwftsjrj30ha06wjsq.jpg)
 不写时默认为default。默认对于同一个包中的其他类相当于公开（public），对于不是同一个包中的其他类相当于私有（private）。受保护（protected）对子类相当于公开，对不是同一包中的没有父子关系的类相当于私有。
@@ -371,6 +376,7 @@ List<String> rawList = new ArrayList()
     
 # 1.31 泛型 ？与T的区别
 https://blog.csdn.net/woshizisezise/article/details/79374460
+```
 public static <T> void show1(List<T> list){
  for (Object object : list) {
         System.out.println(object.toString());
@@ -398,6 +404,7 @@ public static void test(){
    list2.add(new Teacher("sunba",30,0));
    show2(list2);
 }
+```
 从show2方法可以看出和show1的区别了，list2存放了Student和Teacher两种类型，同样可以输出数据，所以这就是T和?的区别啦
 # 1.32 字节流和字符流的区别
 
@@ -440,3 +447,20 @@ inputStream的read()虽然也返回int，但由于此类是面向字节流的，
 一、字符（Reader和 Writer）：中文，字符是只有在内存中才会形成的，操作字符、字符数组或字符串，
 二、字节（InputStream 和OutputStream）：音频文件、图片、歌曲，所有的硬盘上保存文件或进行传输的时候，操作字节和字节数组或二进制对象,
 *如果要java程序实现一个拷贝功能，应该选用字节流进行操作（可能拷贝的是图片），并且采用边读边写的方式（节省内存）。
+# 1.33 父子类的加载顺序？
+>面试和笔试经常考
+
+详情可以看：
+https://mp.weixin.qq.com/s?__biz=MzI5MzYzMDAwNw==&mid=2247485357&idx=1&sn=4cfda217b421eb5144d7b873894b5206&scene=19&token=557705008&lang=zh_CN#wechat_redirect
+
+类的加载顺序。
+- (1) 父类静态代码块(包括静态初始化块，静态属性，但不包括静态方法)
+- (2) 子类静态代码块(包括静态初始化块，静态属性，但不包括静态方法 )
+- (3) 父类非静态代码块( 包括非静态初始化块，非静态属性 )
+- (4) 父类构造函数
+- (5) 子类非静态代码块 ( 包括非静态初始化块，非静态属性 )
+- (6) 子类构造函数
+
+# 1.34 什么是字符集和编码？
+
+https://mp.weixin.qq.com/s?__biz=MzI5MzYzMDAwNw==&mid=2247484848&idx=1&sn=ad7f134c40574ec1214df28b078c88e1&scene=19&token=557705008&lang=zh_CN#wechat_redirect
