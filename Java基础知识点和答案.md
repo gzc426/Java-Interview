@@ -369,3 +369,75 @@ http://www.importnew.com/24029.html
 List<String> rawList = new ArrayList()
 ```
     
+# 1.31 泛型 ？与T的区别
+https://blog.csdn.net/woshizisezise/article/details/79374460
+public static <T> void show1(List<T> list){
+ for (Object object : list) {
+        System.out.println(object.toString());
+    }
+}
+
+public static void show2(List<?> list) {
+    for (Object object : list) {
+        System.out.println(object);
+    }
+}
+public static void test(){
+   List<Student> list1 = new ArrayList<>();
+   list1.add(new Student("zhangsan",18,0));
+   list1.add(new Student("lisi",28,0));
+   list1.add(new Student("wangwu",24,1));
+   //这里如果add(new Teacher(...));就会报错，因为我们已经给List指定了数据类型为Student
+   show1(list1);
+
+   System.out.println("************分割线**************");
+
+   //这里我们并没有给List指定具体的数据类型，可以存放多种类型数据
+   List list2 = new ArrayList<>();
+   list2.add(new Student("zhaoliu",22,1));
+   list2.add(new Teacher("sunba",30,0));
+   show2(list2);
+}
+从show2方法可以看出和show1的区别了，list2存放了Student和Teacher两种类型，同样可以输出数据，所以这就是T和?的区别啦
+# 1.32 字节流和字符流的区别
+
+https://www.cnblogs.com/huangliting/p/5746950.html
+https://www.cnblogs.com/huangliting/p/5746950.html
+## 字节流：
+![](https://images2015.cnblogs.com/blog/1004782/201608/1004782-20160807193514106-1603602397.png)
+![](https://images2015.cnblogs.com/blog/1004782/201608/1004782-20160807193524637-1218858412.png)
+- (A)FileOutputStream(File name) 创建一个文件输出流，向指定的 File 对象输出数据。
+- (B)FileOutputStream(FileDescriptor) 创建一个文件输出流，向指定的文件描述器输出数据。
+- (C)FileOutputStream(String name) 创建一个文件输出流，向指定名称的文件输出数据。
+- (D)FileOutputStream(String, boolean) 用指定系统的文件名，创建一个输出文件。
+
+![](https://images2015.cnblogs.com/blog/1004782/201608/1004782-20160807193558668-1200087629.png)
+![](https://images2015.cnblogs.com/blog/1004782/201608/1004782-20160807193607762-955819376.png)
+InputStreamReader 和 OutputStreamReader ：
+
+把一个以字节为导向的 stream 转换成一个以字符为导向的 stream 。
+InputStreamReader 类是从字节流到字符流的桥梁：它读入字节，并根据指定的编码方式，将之转换为字符流。
+使用的编码方式可能由名称指定，或平台可接受的缺省编码方式。
+InputStreamReader 的 read() 方法之一的每次调用，可能促使从基本字节输入流中读取一个或多个字节。
+为了达到更高效率，考虑用 BufferedReader 封装 InputStreamReader ，
+BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+## 相同点：
+
+InputStream，OutputStream,Reader,writer都是抽象类。所以不能直接new 
+
+## 字节流与字符流的区别
+
+字节流和字符流使用是非常相似的，那么除了操作代码的不同之外，还有哪些不同呢？
+区别：
+- 1、字节流在操作的时候本身是不会用到缓冲区（内存）的，是与文件本身直接操作的，而字符流在操作的时候是使用到缓冲区的
+- 2、字节流在操作文件时，即使不关闭资源（close方法），文件也能输出，但是如果字符流不使用close方法的话，则不会输出任何内容，说明字符流用的是缓冲区，并且可以使用flush方法强制进行刷新缓冲区，这时才能在不close的情况下输出内容
+- 3、Reader类的read()方法返回类型为int ：作为整数读取的字符（占两个字节共16位），范围在 0 到 65535 之间 (0x00-0xffff)，如果已到达流的末尾，则返回 -1
+inputStream的read()虽然也返回int，但由于此类是面向字节流的，一个字节占8个位，所以返回 0 到 255 范围内的 int 字节值。如果因为已经到达流末尾而没有可用的字节，则返回值 -1。因此对于不能用0-255来表示的值就得用字符流来读取！比如说汉字.
+## 4、字节流与字符流主要的区别是他们的的处理方式
+字节流：处理字节和字节数组或二进制对象；
+字符流：处理字符、字符数组或字符串。
+## 那开发中究竟用字节流好还是用字符流好呢？
+一、字符（Reader和 Writer）：中文，字符是只有在内存中才会形成的，操作字符、字符数组或字符串，
+二、字节（InputStream 和OutputStream）：音频文件、图片、歌曲，所有的硬盘上保存文件或进行传输的时候，操作字节和字节数组或二进制对象,
+*如果要java程序实现一个拷贝功能，应该选用字节流进行操作（可能拷贝的是图片），并且采用边读边写的方式（节省内存）。
