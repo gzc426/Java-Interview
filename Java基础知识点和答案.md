@@ -464,3 +464,19 @@ https://mp.weixin.qq.com/s?__biz=MzI5MzYzMDAwNw==&mid=2247485357&idx=1&sn=4cfda2
 # 1.34 什么是字符集和编码？
 
 https://mp.weixin.qq.com/s?__biz=MzI5MzYzMDAwNw==&mid=2247484848&idx=1&sn=ad7f134c40574ec1214df28b078c88e1&scene=19&token=557705008&lang=zh_CN#wechat_redirect
+
+# 1.35 Math.round(11.5)等於多少? Math.round(-11.5)等於多少?
+Math 类中提供了三个与取整有关的方法：ceil、floor、round，这些方法的作用与它们的英
+文名称的含义相对应，例如，ceil 的英文意义是天花板，该方法就表示向上取整，
+Math.ceil(11.3)的结果为12,Math.ceil(-11.3)的结果是-11；floor 的英文意义是地板，该方法
+就表示向下取整，Math.ceil(11.6)的结果为11,Math.ceil(-11.6)的结果是-12；最难掌握的是
+round 方法，它表示“四舍五入”，算法为 Math.floor(x+0.5)，即将原来的数字加上0.5后再向
+下取整，所以，Math.round(11.5)的结果为12，Math.round(-11.5)的结果为-11。
+# 1.36 char 型变量中能不能存贮一个中文汉字?为什么?
+>作业帮面试题
+
+char 型变量是用来存储 Unicode 编码的字符的，unicode 编码字符集中包含了汉字，所以，
+char 型变量中当然可以存储汉字啦。不过，如果某个特殊的汉字没有被包含在 unicode 编
+码字符集中，那么，这个 char 型变量中就不能存储这个特殊汉字。补充说明：unicode 编
+码占用两个字节，所以，char 类型的变量也是占用两个字节。
+# 1.37
