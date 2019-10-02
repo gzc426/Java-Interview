@@ -21,8 +21,10 @@ hashmap jdk1.8 中 hashmap 重计算 hashcode 方法改动： 高 16 位异或�
 扩容机制：
 使用一个容量更大的数组来代替已有的容量小的数组，transfer()方法将原有 Entry 数组的元素拷贝到新的 Entry 数组里，Java1.重新计算每个元素在数组中的位置。Java1.8 中不是重新计算，而是用了一种更巧妙的方式。
 ## 4.get()方法
-
+**整个过程都不需要加锁**
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%871.png)
 ## 5.put()方法
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%872.png)
 这里HashMap里面用到链式数据结构的一个概念。上面我们提到过Entry类里面有一个next属性，作用是指向下一个Entry。打个比方， 第一个键值对A进来，通过计算其key的hash得到的index=0，记做:Entry[0] = A。一会后又进来一个键值对B，通过计算其index也等于0，现在怎么办？HashMap会这样做:B.next = A,Entry[0] = B,如果又进来C,index也等于0,那么C.next = B,Entry[0] = C；这样我们发现index=0的地方其实存取了A,B,C三个键值对,他们通过next这个属性链接在一起。所以疑问不用担心。也就是说数组中存储的是最后插入的元素。到这里为止，HashMap的大致实现
 
 ## 6.HashMap问题 jdk1.8优化
