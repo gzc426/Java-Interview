@@ -133,14 +133,26 @@ public int size() {
 volatile 保证内存可见，最大是65535.
 
 ### 5.JDK 1.8 CurrentHashMap概述
-
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8717.png)
 1.其中抛弃了原有的 Segment 分段锁，而采用了 CAS + synchronized 来保证并发安全性。
 2.大于8的时候才去红黑树链表转红黑树的阀值，当table[i]下面的链表长度大于8时就转化为红黑树结构。
-6.JDK1.8 put
+### 6. JDK1.8 put
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8718.png)
 - 根据 key 计算出 hashcode 。
 - 判断是否需要进行初始化。
 - f即为当前 key 定位出的 Node，如果为空表示当前位置可以写入数据，利用 CAS 尝试写入，失败则自旋保证成功。
 - 如果当前位置的  hashcode == MOVED == -1,则需要进行扩容。
 - 如果都不满足，则利用 synchronized 锁写入数据(分为链表写入和红黑树写入）。
 - 如果数量大于 TREEIFY_THRESHOLD  则要转换为红黑树。
+
+### 7. JDK1.8 get方法
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8719.png)
+- 根据计算出来的 hashcode 寻址，如果就在桶上那么直接返回值。
+- 如果是红黑树那就按照树的方式获取值。
+- 就不满足那就按照链表的方式遍历获取值。
+### 8.rehash过程
+   Redis rehash ：dictRehash每次增量rehash n个元素，由于在自动调整大小时已设置好了ht[1]的大小，因此rehash的主要过程就是遍历ht[0]，取得key，然后将该key按ht[1]的 桶的大小重新rehash，并在rehash完后将ht[0]指向ht[1],然后将ht[0]清空。在这个过程中rehashidx非常重要，它表示上次rehash时在ht[0]的下标位置。
+可以看到，redis对dict的rehash是分批进行的，这样不会阻塞请求，设计的比较优雅。
+但是在调用dictFind的时候，可能需要对两张dict表做查询。唯一的优化判断是，当key在ht[0]不存在且不在rehashing状态时，可以速度返回空。如果在rehashing状态，当在ht[0]没值的时候，还需要在ht[1]里查找。
+dictAdd的时候，如果状态是rehashing，则把值插入到ht[1]，否则ht[0]
 
