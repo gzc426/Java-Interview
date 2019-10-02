@@ -14,5 +14,11 @@ hashmap jdk1.8 中 hashmap 重计算 hashcode 方法改动： 高 16 位异或�
 首先确认：当 length 总是 2 的n 次方时， h & (length - 1)	等价于	hash 对length 取模 ， 但是&比%具有更高的效率；
 >Jdk1.7 之前：h & (length - 1);//第三步，取模运算
 
+![](https://github.com/gzc426/picts/blob/master/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20191002175517.jpg)
+
+## 3.hashMap参数以及扩容机制
+初始容量 16，达到阀值扩容，阀值等于最大容量*负载因子，扩容每次 2 倍，总是 2 的n 次方
+扩容机制：
+使用一个容量更大的数组来代替已有的容量小的数组，transfer()方法将原有 Entry 数组的元素拷贝到新的 Entry 数组里，Java1.重新计算每个元素在数组中的位置。Java1.8 中不是重新计算，而是用了一种更巧妙的方式。
 
 
