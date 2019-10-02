@@ -97,12 +97,12 @@ Segment继承了ReentrantLock，表明每个segment都可以当做一个锁。�
 ![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%878.png)
 
 因为每个HashEntry中的next也是final的，没法对链表最后一个元素增加一个后续entry所以新增一个entry的实现方式只能通过头结点来插入了。newEntry对象是通过 new HashEntry(K k , V v, HashEntry next) 来创建的。如果另一个线程刚好new 这个对象时，当前线程来get它。因为没有同步，就可能会出现当前线程得到的newEntry对象是一个没有完全构造好的对象引用。   如果在这个new的对象的后面，则完全不影响，如果刚好是这个new的对象，那么当刚好这个对象没有完全构造好，也就是说这个对象的value值为null,就出现了如下所示的代码，需要重新加锁再次读取这个值！
-
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%879.png)
 ### 3.2 在get代码的①和②之间，另一个线程修改了一个entry的value
 value是用volitale修饰的，可以保证读取时获取到的是修改后的值。
 ### 3.3 在get代码的①之后，另一个线程删除了一个entry
 假设我们的链表元素是：e1-> e2 -> e3 -> e4 我们要删除 e3这个entry，因为HashEntry中next的不可变，所以我们无法直接把e2的next指向e4，而是将要删除的节点之前的节点复制一份，形成新的链表。它的实现大致如下图所示：
-
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8710.png)
 如果我们get的也恰巧是e3，可能我们顺着链表刚找到e1，这时另一个线程就执行了删除e3的操作，而我们线程还会继续沿着旧的链表找到e3返回。这里没有办法实时保证了，也就是说没办法看到最新的。
 我们第①处就判断了count变量，它保障了在 ①处能看到其他线程修改后的。①之后到②之间，如果再次发生了其他线程再删除了entry节点，就没法保证看到最新的了，这时候的get的实际上是未更新过的！！！。
 不过这也没什么关系，即使我们返回e3的时候，它被其他线程删除了，暴漏出去的e3也不会对我们新的链表造成影响。
