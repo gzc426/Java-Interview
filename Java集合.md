@@ -79,3 +79,32 @@ ConcurrentHashMap 使用分段锁技术，将数据分成一段一段的存储�
 Segment继承了ReentrantLock，表明每个segment都可以当做一个锁。这样对每个segment中的数据需要同步操作的话都是使用每个segment容器对象自身的锁来实现。只有对全局需要改变时锁定的是所有的segment。
 ![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%875.png)
 ## 3. JDK1.7 Get
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%876.png)
+CurrentHashMap是否使用了锁？？？
+它也没有使用锁来同步，只是判断获取的entry的value是否为null，为null时才使用加锁的方式再次去获取。 这里可以看出并没有使用锁，但是value的值为null时候才是使用了加锁！！！
+Get原理：
+第一步，先判断一下 count != 0；count变量表示segment中存在entry的个数。如果为0就不用找了。假设这个时候恰好另一个线程put或者remove了这个segment中的一个entry，会不会导致两个线程看到的count值不一致呢？看一下count变量的定义： transient volatile int count;
+它使用了volatile来修改。我们前文说过，Java5之后，JMM实现了对volatile的保证：对volatile域的写入操作happens-before于每一个后续对同一个域的读写操作。所以，每次判断count变量的时候，即使恰好其他线程改变了segment也会体现出来
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%877.png)
+
+1)在get代码的①和②之间，另一个线程新增了一个entry
+如果另一个线程新增的这个entry又恰好是我们要get的，这事儿就比较微妙了。下图大致描述了put 一个新的entry的过程。
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%878.png)
+因为每个HashEntry中的next也是final的，没法对链表最后一个元素增加一个后续entry所以新增一个entry的实现方式只能通过头结点来插入了。newEntry对象是通过 new HashEntry(K k , V v, HashEntry next) 来创建的。如果另一个线程刚好new 这个对象时，当前线程来get它。因为没有同步，就可能会出现当前线程得到的newEntry对象是一个没有完全构造好的对象引用。   如果在这个new的对象的后面，则完全不影响，如果刚好是这个new的对象，那么当刚好这个对象没有完全构造好，也就是说这个对象的value值为null,就出现了如下所示的代码，需要重新加锁再次读取这个值！
+
+2)在get代码的①和②之间，另一个线程修改了一个entry的value
+value是用volitale修饰的，可以保证读取时获取到的是修改后的值。
+3)在get代码的①之后，另一个线程删除了一个entry
+假设我们的链表元素是：e1-> e2 -> e3 -> e4 我们要删除 e3这个entry，因为HashEntry中next的不可变，所以我们无法直接把e2的next指向e4，而是将要删除的节点之前的节点复制一份，形成新的链表。它的实现大致如下图所示：
+
+如果我们get的也恰巧是e3，可能我们顺着链表刚找到e1，这时另一个线程就执行了删除e3的操作，而我们线程还会继续沿着旧的链表找到e3返回。这里没有办法实时保证了，也就是说没办法看到最新的。
+我们第①处就判断了count变量，它保障了在 ①处能看到其他线程修改后的。①之后到②之间，如果再次发生了其他线程再删除了entry节点，就没法保证看到最新的了，这时候的get的实际上是未更新过的！！！。
+不过这也没什么关系，即使我们返回e3的时候，它被其他线程删除了，暴漏出去的e3也不会对我们新的链表造成影响。
+
+2. JDK1.7 PUT
+1.将当前 Segment 中的 table 通过 key 的 hashcode 定位到 HashEntry。
+2.遍历该 HashEntry，如果不为空则判断传入的 key 和当前遍历的 key 是否相等，相等则覆盖旧的 value。
+3.不为空则需要新建一个 HashEntry 并加入到 Segment 中，同时会先判断是否需要扩容。
+4.最后会解除在 1 中所获取当前 Segment 的锁。
+
+可以说是首先找到segment，确定是哪一个segment,然后在这个segment中遍历查找 key值是要查找的key值得entry,如果找到，那么就修改该key,如果没找到，那么就在头部新加一个entry.
