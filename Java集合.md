@@ -107,10 +107,9 @@ value是用volitale修饰的，可以保证读取时获取到的是修改后的�
 我们第①处就判断了count变量，它保障了在 ①处能看到其他线程修改后的。①之后到②之间，如果再次发生了其他线程再删除了entry节点，就没法保证看到最新的了，这时候的get的实际上是未更新过的！！！。
 不过这也没什么关系，即使我们返回e3的时候，它被其他线程删除了，暴漏出去的e3也不会对我们新的链表造成影响。
 
-2. JDK1.7 PUT
-1.将当前 Segment 中的 table 通过 key 的 hashcode 定位到 HashEntry。
-2.遍历该 HashEntry，如果不为空则判断传入的 key 和当前遍历的 key 是否相等，相等则覆盖旧的 value。
-3.不为空则需要新建一个 HashEntry 并加入到 Segment 中，同时会先判断是否需要扩容。
-4.最后会解除在 1 中所获取当前 Segment 的锁。
-
-可以说是首先找到segment，确定是哪一个segment,然后在这个segment中遍历查找 key值是要查找的key值得entry,如果找到，那么就修改该key,如果没找到，那么就在头部新加一个entry.
+# 4. JDK1.7 PUT
+- 1.将当前 Segment 中的 table 通过 key 的 hashcode 定位到 HashEntry。
+- 2.遍历该 HashEntry，如果不为空则判断传入的 key 和当前遍历的 key 是否相等，相等则覆盖旧的 value。
+- 3.不为空则需要新建一个 HashEntry 并加入到 Segment 中，同时会先判断是否需要扩容。
+- 4.最后会解除在 1 中所获取当前 Segment 的锁。
+- 5.可以说是首先找到segment，确定是哪一个segment,然后在这个segment中遍历查找 key值是要查找的key值得entry,如果找到，那么就修改该key,如果没找到，那么就在头部新加一个entry.
