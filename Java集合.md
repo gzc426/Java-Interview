@@ -107,9 +107,40 @@ value是用volitale修饰的，可以保证读取时获取到的是修改后的�
 我们第①处就判断了count变量，它保障了在 ①处能看到其他线程修改后的。①之后到②之间，如果再次发生了其他线程再删除了entry节点，就没法保证看到最新的了，这时候的get的实际上是未更新过的！！！。
 不过这也没什么关系，即使我们返回e3的时候，它被其他线程删除了，暴漏出去的e3也不会对我们新的链表造成影响。
 
-# 4. JDK1.7 PUT
+### 4. JDK1.7 PUT
 - 1.将当前 Segment 中的 table 通过 key 的 hashcode 定位到 HashEntry。
 - 2.遍历该 HashEntry，如果不为空则判断传入的 key 和当前遍历的 key 是否相等，相等则覆盖旧的 value。
 - 3.不为空则需要新建一个 HashEntry 并加入到 Segment 中，同时会先判断是否需要扩容。
 - 4.最后会解除在 1 中所获取当前 Segment 的锁。
 - 5.可以说是首先找到segment，确定是哪一个segment,然后在这个segment中遍历查找 key值是要查找的key值得entry,如果找到，那么就修改该key,如果没找到，那么就在头部新加一个entry.
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8711.png)
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8712.png)
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8713.png)
+### 5. JDK1.7 Remove
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8714.png)
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8715.png)
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8716.png)
+### 6. JDK1.7 & JDK1.8 size()
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8720.png)
+```
+public int size() {
+    long n = sumCount();
+    return ((n < 0L) ? 0 :
+            (n > (long)Integer.MAX_VALUE) ? Integer.MAX_VALUE :
+            (int)n);
+}
+```
+volatile 保证内存可见，最大是65535.
+
+### 5.JDK 1.8 CurrentHashMap概述
+
+1.其中抛弃了原有的 Segment 分段锁，而采用了 CAS + synchronized 来保证并发安全性。
+2.大于8的时候才去红黑树链表转红黑树的阀值，当table[i]下面的链表长度大于8时就转化为红黑树结构。
+6.JDK1.8 put
+- 根据 key 计算出 hashcode 。
+- 判断是否需要进行初始化。
+- f即为当前 key 定位出的 Node，如果为空表示当前位置可以写入数据，利用 CAS 尝试写入，失败则自旋保证成功。
+- 如果当前位置的  hashcode == MOVED == -1,则需要进行扩容。
+- 如果都不满足，则利用 synchronized 锁写入数据(分为链表写入和红黑树写入）。
+- 如果数量大于 TREEIFY_THRESHOLD  则要转换为红黑树。
+
