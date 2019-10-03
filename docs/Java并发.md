@@ -1,75 +1,78 @@
-并发框架
-Doug Lea
+# 一. 并发框架
+## Doug Lea
 如果IT的历史，是以人为主体串接起来的话，那么肯定少不了Doug Lea。这个鼻梁挂着眼镜，留着德王威廉二世的胡子，脸上永远挂着谦逊腼腆笑容，服务于纽约州立大学Oswego分校计算机科学系的老大爷。
 说他是这个世界上对Java影响力最大的个人，一点也不为过。因为两次Java历史上的大变革，他都间接或直接的扮演了举足轻重的角色。2004年所推出的Tiger。Tiger广纳了15项JSRs(Java Specification Requests)的语法及标准，其中一项便是JSR-166。JSR-166是来自于Doug编写的util.concurrent包。
 值得一提的是: Doug Lea也是JCP (Java社区项目)中的一员。
 Doug是一个无私的人，他深知分享知识和分享苹果是不一样的，苹果会越分越少，而自己的知识并不会因为给了别人就减少了，知识的分享更能激荡出不一样的火花。《Effective JAVA》这本Java经典之作的作者Joshua Bloch便在书中特别感谢Doug Lea是此书中许多构想的共鸣板，感谢Doug Lea大方分享丰富而又宝贵的知识。
 
-线程
-线程的状态
-线程的几种实现方式
+# 一.线程
+## 0.关于线程你需要搞懂这些：
+- 线程的状态
+- 线程的几种实现方式
+- 三个线程轮流打印ABC十次
+- 判断线程是否销毁
+- yield功能
+- 给定三个线程t1,t2,t3，如何保证他们依次执行
 
-三个线程轮流打印ABC十次
-判断线程是否销毁
-yield功能
-给定三个线程t1,t2,t3，如何保证他们依次执行
-基本概念
+## 1. 基本概念
+
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8734.png)
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8735.png)
 
 
-
-
-线程的启动
-1）实现Runnable接口
-1.自定义一个线程，实现Runnable接口的run方法
+## 2. 线程的启动
+### 2.1 实现Runnable接口
+- 1.自定义一个线程，实现Runnable接口的run方法
 run方法就是要执行的内容，会在另一个分支上进行
 Thread类本身也实现了Runnable接口
-2.主方法中new一个自定义线程对象，然后new一个Thread类对象，其构造方法的参数是自定义线程对象
-3.执行Thread类的start方法，线程开始执行
+- 2.主方法中new一个自定义线程对象，然后new一个Thread类对象，其构造方法的参数是自定义线程对象
+- 3.执行Thread类的start方法，线程开始执行
 自此产生了分支，一个分支会执行run方法，在主方法中不会等待run方法调用完毕返回才继续执行，而是直接继续执行，是第二个分支。这两个分支并行运行
 
 这里运用了静态代理模式：
 Thread类和自定义线程类都实现了Runnable接口
 Thread类是代理Proxy，自定义线程类是被代理类
 通过调用Thread的start方法，实际上调用了自定义线程类的start方法（当然除此之外还有其他的代码）
-2）继承Thread类
-①自定义一个类MyThread，继承Thread类，重写run方法
-②在main方法中new一个自定义类，然后直接调用start方法
+### 2.2 继承Thread类
+- 自定义一个类MyThread，继承Thread类，重写run方法
+- 在main方法中new一个自定义类，然后直接调用start方法
 两个方法比较而言第二个方法代码量较少
 但是第一个方法比较灵活，自定义线程类还可以继承其他的类，而不限于Thread类
-3）实现Callable接口
+### 2.3 实现Callable接口
 
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8736.png)
 
-
-线程的状态
-初始态：NEW
+## 3. 线程的状态
+### 初始态：NEW
 创建一个Thread对象，但还未调用start()启动线程时，线程处于初始态。
 
-运行态：RUNNABLE
+### 运行态：RUNNABLE
 在Java中，运行态包括就绪态 和 运行态。
 
-就绪态 READY
+### 就绪态 READY
 该状态下的线程已经获得执行所需的所有资源，只要CPU分配执行权就能运行。
 所有就绪态的线程存放在就绪队列中。
 
-运行态 RUNNING
+### 运行态 RUNNING
 获得CPU执行权，正在执行的线程。
 由于一个CPU同一时刻只能执行一条线程，因此每个CPU每个时刻只有一条运行态的线程。
 
-阻塞态 BLOCKED
+### 阻塞态 BLOCKED
 阻塞态专指请求排它锁失败时进入的状态。
 
-等待态 WAITING
+### 等待态 WAITING
 当前线程中调用wait、join、park函数时，当前线程就会进入等待态。
 进入等待态的线程会释放CPU执行权，并释放资源（如：锁），它们要等待被其他线程显式地唤醒。
 
-超时等待态 TIME_WAITING
+### 超时等待态 TIME_WAITING
 当运行中的线程调用sleep(time)、wait、join、parkNanos、parkUntil时，就会进入该状态；
 进入该状态后释放CPU执行权 和 占有的资源。
 与等待态的区别：无需等待被其他线程显式地唤醒，在一定时间之后它们会由系统自动唤醒。 
 
-终止态
+### 终止态
 线程执行结束后的状态。
 
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8737.png)
 线程的方法
 
 getName
