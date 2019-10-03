@@ -151,8 +151,165 @@ volatile 保证内存可见，最大是65535.
 - 如果是红黑树那就按照树的方式获取值。
 - 就不满足那就按照链表的方式遍历获取值。
 ### 8.rehash过程
-   Redis rehash ：dictRehash每次增量rehash n个元素，由于在自动调整大小时已设置好了ht[1]的大小，因此rehash的主要过程就是遍历ht[0]，取得key，然后将该key按ht[1]的 桶的大小重新rehash，并在rehash完后将ht[0]指向ht[1],然后将ht[0]清空。在这个过程中rehashidx非常重要，它表示上次rehash时在ht[0]的下标位置。
-可以看到，redis对dict的rehash是分批进行的，这样不会阻塞请求，设计的比较优雅。
-但是在调用dictFind的时候，可能需要对两张dict表做查询。唯一的优化判断是，当key在ht[0]不存在且不在rehashing状态时，可以速度返回空。如果在rehashing状态，当在ht[0]没值的时候，还需要在ht[1]里查找。
-dictAdd的时候，如果状态是rehashing，则把值插入到ht[1]，否则ht[0]
+- Redis rehash ：dictRehash每次增量rehash n个元素，由于在自动调整大小时已设置好了ht[1]的大小，因此rehash的主要过程就是遍历ht[0]，取得key，然后将该key按ht[1]的 桶的大小重新rehash，并在rehash完后将ht[0]指向ht[1],然后将ht[0]清空。在这个过程中rehashidx非常重要，它表示上次rehash时在ht[0]的下标位置。
+- 可以看到，redis对dict的rehash是分批进行的，这样不会阻塞请求，设计的比较优雅。
+- 但是在调用dictFind的时候，可能需要对两张dict表做查询。唯一的优化判断是，当key在ht[0]不存在且不在rehashing状态时，可以速度返回空。如果在rehashing状态，当在ht[0]没值的时候，还需要在ht[1]里查找。
+- dictAdd的时候，如果状态是rehashing，则把值插入到ht[1]，否则ht[0]
 
+# 三 Hashtable
+https://blog.csdn.net/ns_code/article/details/36191279
+## 1.参数
+-（1）table是一个Entry[]数组类型，而Entry实际上就是一个单向链表。哈希表的"key-value键值对"都是存储在Entry数组中的。  
+-（2）count是Hashtable的大小，它是Hashtable保存的键值对的数量。  
+- （3）threshold是Hashtable的阈值，用于判断是否需要调整Hashtable的容量。threshold的值="容量*加载因子"。
+- （4）loadFactor就是加载因子。
+- （5）modCount是用来实现fail-fast机制的
+## 1.put
+从下面的代码中我们可以看出，Hashtable中的key和value是不允许为空的，当我们想要想Hashtable中添加元素的时候，首先计算key的hash值，然
+后通过hash值确定在table数组中的索引位置，最后将value值替换或者插入新的元素，如果容器的数量达到阈值，就会进行扩充。
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8721.png)
+## 2.get
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8722.png)
+## 3.Remove
+	在下面代码中，如果prev为null了，那么说明第一个元素就是要删除的元素，那么就直接指向第一个元素的下一个即可。
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8723.png)
+## 4.扩容
+- 默认初始容量为11
+- 线程安全，但是速度慢，不允许key/value为null
+- 加载因子为0.75：即当 元素个数 超过 容量长度的0.75倍 时，进行扩容
+- 扩容增量：2*原数组长度+1如 HashTable的容量为11，一次扩容后是容量为23
+
+2.4 hashtable和hashmap的区别
+	
+2.5  HashMap和ConCurrentHashMap区别
+
+2.6 ConcurrentHashMap和HashTable区别
+ConcurrentHashMap仅仅锁定map的某个部分，而Hashtable则会锁定整个map。
+hashtable(同一把锁):使用synchronized来保证线程安全，但效率非常低下。当一个线程访问同步方法时，其他线程也访问同步方法，可能会进入阻塞或轮询状态，如使用put添加元素，另一个线程不能使用put添加元素，也不能使用get，竞争会越来越激烈效率越低。
+concurrenthashmap(分段锁):(锁分段技术)每一把锁只锁容器其中一部分数据，多线程访问容器里不同数据段的数据，就不会存在锁竞争，提高并发访问率。首先将数据分为一段一段的存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一个段数据时，其他段的数据也能被其他线程访问。concurrenthashmap是由Segment数组结构和HahEntry数组结构组成。Segment是一种可重入锁ReentrantLock，扮演锁的角色。HashEntry用于存储键值对数据。一个concurrenthashmap里包含一个Segment数组。Segment的结构和Hashmap类似，是一种数组和链表结构，一个Segment包含一个HashEntry数组，每个HashEntry是一个链表结构的元素，每个Segment守护着一个HashEntry数组里的元素，当对HashEntry数组的数据进行修改时，必须首先获得对应的Segment。
+2.7  linkedHashMap
+	https://blog.csdn.net/justloveyou_/article/details/71713781
+	
+2.8 Linkedhashmap与 hashmap的区别
+1.LinkedHashMap是HashMap的子类
+2.LinkedHashMap中的Entry增加了两个指针 before 和 after，它们分别用于维护双向链接列表。
+3.在put操作上，虽然LinkedHashMap完全继承了HashMap的put操作，但是在细节上还是做了一定的调整，比如，在LinkedHashMap中向哈希表中插入新Entry的同时，还会通过Entry的addBefore方法将其链入到双向链表中。
+4.在扩容操作上，虽然LinkedHashMap完全继承了HashMap的resize操作，但是鉴于性能和LinkedHashMap自身特点的考量，LinkedHashMap对其中的重哈希过程(transfer方法)进行了重写
+5.在读取操作上，LinkedHashMap中重写了HashMap中的get方法，通过HashMap中的getEntry方法获取Entry对象。在此基础上，进一步获取指定键对应的值。
+2.9 HashSet
+	对于HashSet而言，它是基于HashMap实现的
+	Hashset源码 http://zhangshixi.iteye.com/blog/673143
+	Hashset 如何保证集合的没有重复元素？
+		可以看出hashset底层是hashmap但是存储的是一个对象，hashset实际将该元素e作为key放入hashmap,当key值(该元素e)相同时，只是进行更新value，并不会新增加，所以set中的元素不会进行改变。
+	
+
+2.10 hashmap与hashset区别
+	
+
+2.11 Collections.sort 内部原理
+
+重写 Collections.sort()
+import java.util.*;
+class xd{
+    int a;
+    int b;
+    xd(int a,int b){
+        this.a = a;
+        this.b = b;
+    }
+}
+public class Main {
+    public static void main(String[] arg) {
+        xd a = new xd(2,3);
+        xd b = new xd(4,1);
+        xd c = new xd(1,2);
+        ArrayList<xd> array = new ArrayList<>();
+        array.add(a);
+        array.add(b);
+        array.add(c);
+        Collections.sort(array, new Comparator<xd>() {
+            @Override
+            public int compare(xd o1, xd o2) {
+                if(o1.a > o2.a)
+                    return 1;
+                else if(o1.a < o2.a)
+                    return -1;
+                return 0;
+            }
+        });
+        for(int i=0;i<array.size();i++)
+            System.out.println(array.get(i).a);
+        for(int i=0;i<array.size();i++)
+            System.out.println(array.get(i).b);
+    }
+
+
+
+}
+
+2.12 hash算法
+
+java map底层实现，最好看源码，还有各种集合类的区别
+4.TreeMap和TreeSet区别和实现原理
+5.集合和有序集合有什么区别
+
+6.Set是无序的，那怎么保证它有序？有什么办法吗？提到了TreeSet，那说一下TreeSet为什么能够保证有序？
+7.java中hashMap结构，处理冲突方法，还有啥方法，各个方法优缺点
+.Collections.sort()  的原理
+集合框架的理解 对Java的集合框架有什么样的了解, 用过哪些集合类, 各自的效率以及适用场景
+	cas的实现原理，以及aba问题
+
+
+List/Set/Queue 接口及其实现类 
+HashSet/TreeSet/HashMap/TreeMap/hashTable 这些类的底层实现。 
+常问： hashSet 和 HashMap 有什么区别 。各自的底层实现是基于什么的。这里紧接着的问题通常是：我们来聊聊多线程（微笑脸），或者我们来聊聊红黑树。
+2.13 迭代器 Iterator Enumeration
+	1. Iterator和ListIterator的区别是什么？
+	答：Iterator可用来遍历Set和List集合，但是ListIterator只能用来遍历List。Iterator对集合只能是前向遍历，ListIterator既可以前向也可以后向。
+ListIterator实现了Iterator接口，并包含其他的功能，比如：增加元素，替换元素，获取前一个和后一个元素的索引，等等。
+4.快速失败(fail-fast)和安全失败(fail-safe)的区别是什么？
+答：Iterator的安全失败是基于对底层集合做拷贝，因此，它不受源集合上修改的影响。java.util包下面的所有的集合类都是快速失败的，而java.util.concurrent包下面的所有的类都是安全失败的。快速失败的迭代器会抛出ConcurrentModificationException异常，而安全失败的迭代器永远不会抛出这样的异常。
+5.Enumeration接口和Iterator接口的区别有哪些？
+答：Enumeration速度是Iterator的2倍，同时占用更少的内存。但是，Iterator远远比Enumeration安全，因为其他线程不能够修改正在被iterator遍历的集合里面的对象。同时，Iterator允许调用者删除底层集合里面的元素，这对Enumeration来说是不可能的。
+2.14  LIST ArrayList，LinkedList和Vector的区别和实现原理
+	Vector : https://blog.csdn.net/chenssy/article/details/37520981
+一．ArrayList与LinkedList区别
+	ArrayList和LinkedList都实现了List接口，他们有以下的不同点：
+ArrayList是基于索引的数据接口，它的底层是数组。它可以以O(1)时间复杂度对元素进行随机访问。与此对应，LinkedList是以元素列表的形式存储它的数据，每一个元素都和它的前一个和后一个元素链接在一起，在这种情况下，查找某个元素的时间复杂度是O(n)。
+相对于ArrayList，LinkedList的插入，添加，删除操作速度更快，因为当元素被添加到集合任意位置的时候，不需要像数组那样重新计算大小或者是更新索引。
+LinkedList比ArrayList更占内存，因为LinkedList为每一个节点存储了两个引用，一个指向前一个元素，一个指向下一个元素。
+二．Vetor arraylist Linkedlist 区别
+ArrayList 就是动态数组，是Array的复杂版本，动态的增加和减少元素.当更多的元素加入到ArrayList中时,其大小将会动态地增长。它的元素可以通过get/set方法直接访问，因为ArrayList本质上是一个数组。初始容量为10。1.插入元素的时候可能扩容，删除元素时不会缩小容量。2.扩容增长为Arraylist增长原来的0.5倍 3. 而Arraylist 没有设置增长空间的方法。4.线程不同步
+Vector 和ArrayList类似, 区别在于Vector是同步类(synchronized).因此,开销就比ArrayList要大。初始容量为10。实现了随机访问接口，可以随机访问。Vector是内部是以动态数组的形式来存储数据的。1.Vector还可以设置增长的空间大小，2. 及Vector增长原来的1倍3.vector 线程同步
+LinkedList 是一个双链表,在添加和删除元素时具有比ArrayList更好的性能.但在get与set方面弱于ArrayList.当然,这些对比都是指数据量很大或者操作很频繁的情况下的对比。它还实现了 Queue 接口,该接口比List提供了更多的方法,包括 offer(),peek(),poll()等.
+
+ArrayList和LinkedList的使用场景，其中add方法的实现ArrayList,LinkedList的实现以及插入，查找，删除的过程
+Arraylist如何实现排序
+三．使用ArrayList的迭代器会出现什么问题？单线程和多线程环境下；
+答：常用的迭代器设计模式，iterator方法返回一个父类实现的迭代器。
+1、迭代器的hasNext方法的作用是判断当前位置是否是数组最后一个位置，相等为false，否则为true。
+2、迭代器next方法用于返回当前的元素，并把指针指向下一个元素，值得注意的是，每次使用next方法的时候，都会判断创建迭代器获取的这个容器的计数器modCount是否与此时的不相等，不相等说明集合的大小被修改过，如果是会抛出ConcurrentModificationException异常，如果相等调用get方法返回元素即可。
+四．数组(Array)和列表(ArrayList)有什么区别？什么时候应该使用Array而不是ArrayList？
+答：不同点：定义上：Array可以包含基本类型和对象类型，ArrayList只能包含对象类型。容量上：Array大小固定，ArrayList的大小是动态变化的。操作上：ArrayList提供更多的方法和特性，如：addAll()，removeAll()，iterator()等等。使用基本数据类型或者知道数据元素数量的时候可以考虑Array;ArrayList处理固定数量的基本类型数据类型时会自动装箱来减少编码工作量，但是相对较慢。
+五．ArrayList和Vector有何异同点？
+相同点：
+（1）两者都是基于索引的，都是基于数组的。
+（2）两者都维护插入顺序，我们可以根据插入顺序来获取元素。
+（3）ArrayList和Vector的迭代器实现都是fail-fast的。
+（4）ArrayList和Vector两者允许null值，也可以使用索引值对元素进行随机访问。
+不同点：
+（1）Vector是同步，线程安全，而ArrayList非同步，线程不安全。对于ArrayList，如果迭代时改变列表，应该使用CopyOnWriteArrayList。
+（2）但是，ArrayList比Vector要快，它因为有同步，不会过载。
+（3）在使用上，ArrayList更加通用，因为Collections工具类容易获取同步列表和只读列表。
+2.15 快速失败(fail-fast)和安全失败(fail-safe)
+一：快速失败（fail—fast）
+          在用迭代器遍历一个集合对象时，如果遍历过程中对集合对象的内容进行了修改（增加、删除、修改），则会抛出Concurrent Modification Exception。
+          原理：迭代器在遍历时直接访问集合中的内容，并且在遍历过程中使用一个 modCount 变量。集合在被遍历期间如果内容发生变化，就会改变modCount的值。每当迭代器使用hashNext()/next()遍历下一个元素之前，都会检测modCount变量是否为expectedmodCount值，是的话就返回遍历；否则抛出异常，终止遍历。
+      注意：这里异常的抛出条件是检测到 modCount！=expectedmodCount 这个条件。如果集合发生变化时修改modCount值刚好又设置为了expectedmodCount值，则异常不会抛出。因此，不能依赖于这个异常是否抛出而进行并发操作的编程，这个异常只建议用于检测并发修改的bug。
+      场景：java.util包下的集合类都是快速失败的，不能在多线程下发生并发修改（迭代过程中被修改）。
+    二：安全失败（fail—safe）
+      采用安全失败机制的集合容器，在遍历时不是直接在集合内容上访问的，而是先复制原有集合内容，在拷贝的集合上进行遍历。
+      原理：由于迭代时是对原集合的拷贝进行遍历，所以在遍历过程中对原集合所作的修改并不能被迭代器检测到，所以不会触发Concurrent Modification Exception。
+      缺点：基于拷贝内容的优点是避免了Concurrent Modification Exception，但同样地，迭代器并不能访问到修改后的内容，即：迭代器遍历的是开始遍历那一刻拿到的集合拷贝，在遍历期间原集合发生的修改迭代器是不知道的。
+          场景：java.util.concurrent包下的容器都是安全失败，可以在多线程下并发使用，并发修改。
+快速失败和安全失败是对迭代器而言的。 快速失败：当在迭代一个集合的时候，如果有另外一个线程在修改这个集合，就会抛出ConcurrentModification异常，java.util下都是快速失败。 安全失败：在迭代时候会在集合二层做一个拷贝，所以在修改集合上层元素不会影响下层。在java.util.concurrent下都是安全失败
