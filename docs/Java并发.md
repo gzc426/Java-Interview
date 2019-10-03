@@ -73,60 +73,60 @@ Thread类是代理Proxy，自定义线程类是被代理类
 线程执行结束后的状态。
 
 ![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8737.png)
-线程的方法
+## 4. 线程的方法
 
-getName
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8738.png)
+### getName
 Thread类的构造方法1
-
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8739.png)
 Thread类的构造方法2
- 
-new 一个子类对象的同时也new了其父类的对象，只是如果不显式调用父类的构造方法super(),那么会自动调用无参数的父类的构造方法。
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8740.png)
+- new 一个子类对象的同时也new了其父类的对象，只是如果不显式调用父类的构造方法super(),那么会自动调用无参数的父类的构造方法。
 可以在自定义类MyThread中（继承自Thread类）中写一个构造方法，显式调用父类的构造方法，其参数为一个字符串,表示创建一个以该字符串为名字的Thread对象。
-效果是创建了一个MyThread对象，并且其父类Thread对象的名字是给定的字符串。
-如果不显式调用父类的构造方法super(参数)，那么默认父类Thread是没有名字的。
-isAlive
-isAlive活着的定义是就绪、运行、阻塞状态
+- 效果是创建了一个MyThread对象，并且其父类Thread对象的名字是给定的字符串。
+- 如果不显式调用父类的构造方法super(参数)，那么默认父类Thread是没有名字的。
+### isAlive
+**isAlive活着的定义是就绪、运行、阻塞状态**
 线程是有优先级的，优先级高的获得Cpu执行时间长，并不代表优先级低的就得不到执行
-sleep（当前线程.sleep）
+
+### sleep（当前线程.sleep）
 sleep时持有的锁不会自动释放，sleep时可能会抛出InterruptedException。
 Thread.sleep(long millis)
 一定是当前线程调用此方法，当前线程进入TIME_WAIT状态，但不释放对象锁，millis后线程自动苏醒进入READY状态。作用：给其它线程执行机会的最佳方式。
-join（其他线程.join）
+### join（其他线程.join）
 t.join()/t.join(long millis)
 当前线程里调用线程1的join方法，当前线程进入WAIT状态，但不释放对象锁，直到线程1执行完毕或者millis时间到，当前线程进入可运行状态。
 join方法的作用是将分出来的线程合并回去，等待分出来的线程执行完毕后继续执行原有线程。类似于方法调用。（相当于调用thead.run()）
-yield（当前线程.yield）
+### yield（当前线程.yield）
 Thread.yield()，一定是当前线程调用此方法，当前线程放弃获取的cpu时间片，由运行状态变会可运行状态，让OS再次选择线程。作用：让相同优先级的线程轮流执行，但并不保证一定会轮流执行。实际中无法保证yield()达到让步目的，因为让步的线程还有可能被线程调度程序再次选中。Thread.yield()不会导致阻塞。
-interrupt（其他线程.interrupt）
-调用Interrupt方法时，线程的中断状态将被置位。这是每一个线程都具有的boolean标志；
+### interrupt（其他线程.interrupt）
+- 调用Interrupt方法时，线程的中断状态将被置位。这是每一个线程都具有的boolean标志；
 中断可以理解为线程的一个标志位属性，表示一个运行中的线程是否被其他线程进行了中断操作。这里提到了其他线程，所以可以认为中断是线程之间进行通信的一种方式，简单来说就是由其他线程通过执行interrupt方法对该线程打个招呼，让起中断标志位为true，从而实现中断线程执行的目的。
+- 其他线程调用了interrupt方法后，该线程通过检查自身是否被中断进行响应，具体就是该线程需要调用Thread.currentThread().isInterrupted方法进行判断是否被中断或者调用Thread类的静态方法interrupted对当前线程的中断标志位进行复位（变为false）。需要注意的是，如果该线程已经处于终结状态，即使该线程被中断过，那么调用isInterrupted方法返回仍然是false，表示没有被中断。
+- 那么是不是线程调用了interrupt方法对该线程进行中断，该线程就会被中断呢？答案是否定的。因为**Java虚拟机对会抛出InterruptedException异常的方法进行了特别处理：Java虚拟机会将该线程的中断标志位清除，然后抛出InterruptedException，这个时候调用isInterrupted方法返回的也是false**。
 
-其他线程调用了interrupt方法后，该线程通过检查自身是否被中断进行响应，具体就是该线程需要调用Thread.currentThread().isInterrupted方法进行判断是否被中断或者调用Thread类的静态方法interrupted对当前线程的中断标志位进行复位（变为false）。需要注意的是，如果该线程已经处于终结状态，即使该线程被中断过，那么调用isInterrupted方法返回仍然是false，表示没有被中断。
+**interrupt一个其他线程t时**
+- 1）如果线程t中调用了可以抛出InterruptedException的方法，那么会在t中抛出InterruptedException并清除中断标志位。
+- 2）如果t没有调用此类方法，那么会正常地将设置中断标志位。
 
-那么是不是线程调用了interrupt方法对该线程进行中断，该线程就会被中断呢？答案是否定的。因为Java虚拟机对会抛出InterruptedException异常的方法进行了特别处理：Java虚拟机会将该线程的中断标志位清除，然后抛出InterruptedException，这个时候调用isInterrupted方法返回的也是false。
+**如何停止线程？**
+- 1）在catch InterruptedException异常时可以关闭当前线程；
+- 2）循环调用isInterrupted方法检测是否被中断，如果被中断，要么调用interrupted方法清除中断标志位，要么就关闭当前线程。
+- 3）无论1）还是2），都可以通过一个volatile的自定义标志位来控制循环是否继续执行
 
-interrupt一个其他线程t时
-1）如果线程t中调用了可以抛出InterruptedException的方法，那么会在t中抛出InterruptedException并清除中断标志位。
-2）如果t没有调用此类方法，那么会正常地将设置中断标志位。
+**但是注意！
+如果线程中有阻塞操作，在阻塞时是无法去检测中断标志位或自定义标志位的，只能使用1）的interrupt方法才能中断线程，并且在线程停止前关闭引起阻塞的资源（比如Socket）。**
 
-如何停止线程？
-1）在catch InterruptedException异常时可以关闭当前线程；
-2）循环调用isInterrupted方法检测是否被中断，如果被中断，要么调用interrupted方法清除中断标志位，要么就关闭当前线程。
-3）无论1）还是2），都可以通过一个volatile的自定义标志位来控制循环是否继续执行
+### wait（对象.wait）
+- **调用obj的wait(), notify()方法前，必须获得obj锁，也就是必须写在synchronized(obj) 代码段内。**
+- obj.wait()，当前线程调用对象的wait()方法，当前线程释放对象锁，进入等待队列。依靠notify()/notifyAll()唤醒或者wait(long timeout)timeout时间到自动唤醒。
+- 调用wait()方法的线程，如果其他线程调用该线程的interrupt()方法，则会重新尝试获取对象锁。只有当获取到对象锁，才开始抛出相应的InterruptedException异常，从wait中返回。
 
-但是注意！
-如果线程中有阻塞操作，在阻塞时是无法去检测中断标志位或自定义标志位的，只能使用1）的interrupt方法才能中断线程，并且在线程停止前关闭引起阻塞的资源（比如Socket）。
-
-
-
-wait（对象.wait）
-调用obj的wait(), notify()方法前，必须获得obj锁，也就是必须写在synchronized(obj) 代码段内。
-obj.wait()，当前线程调用对象的wait()方法，当前线程释放对象锁，进入等待队列。依靠notify()/notifyAll()唤醒或者wait(long timeout)timeout时间到自动唤醒。
-调用wait()方法的线程，如果其他线程调用该线程的interrupt()方法，则会重新尝试获取对象锁。只有当获取到对象锁，才开始抛出相应的InterruptedException异常，从wait中返回。
-notify（对象.notify）
+### notify（对象.notify）
 obj.notify()唤醒在此对象监视器上等待的单个线程，选择是任意性的。notifyAll()唤醒在此对象监视器上等待的所有线程。
-wait&notify 最佳实践
+### wait&notify 最佳实践
 等待方（消费者）和通知方（生产者）
+```
 等待方：
 synchronized(obj){
 	while(条件不满足){
@@ -140,33 +140,33 @@ synchonized(obj){
 	改变条件;
 	obj.notifyAll();
 }
+```
+- 1）条件谓词：
+- 将与条件队列相关联的条件谓词以及在这些条件谓词上等待的操作都写入文档。
+- 在条件等待中存在一种重要的三元关系，包括**加锁、wait方法和一个条件谓词。在条件谓词中包含多个状态变量，而状态变量由一个锁来保护，因此在测试条件谓词之前必须先持有这个锁。锁对象和条件队列对象（即调用wait和notify等方法所在的对象）必须是同一个对象。**
+- 当线程从wait方法中被唤醒时，它在重新请求锁时不具有任何特殊的优先性，而要去其他尝试进入同步代码块的线程一起正常地在锁上进行竞争。
+- 每一次wait调用都会隐式地与特定的条件谓词关联起来。当调用某个特定条件谓词的wait时，调用者必须已经持有与条件队列相关的锁，并且这个锁必须保护着构成条件谓词的状态变量。
 
-1）条件谓词：
-将与条件队列相关联的条件谓词以及在这些条件谓词上等待的操作都写入文档。
-在条件等待中存在一种重要的三元关系，包括加锁、wait方法和一个条件谓词。在条件谓词中包含多个状态变量，而状态变量由一个锁来保护，因此在测试条件谓词之前必须先持有这个锁。锁对象和条件队列对象（即调用wait和notify等方法所在的对象）必须是同一个对象。
-当线程从wait方法中被唤醒时，它在重新请求锁时不具有任何特殊的优先性，而要去其他尝试进入同步代码块的线程一起正常地在锁上进行竞争。
-每一次wait调用都会隐式地与特定的条件谓词关联起来。当调用某个特定条件谓词的wait时，调用者必须已经持有与条件队列相关的锁，并且这个锁必须保护着构成条件谓词的状态变量。
-
-2）过早唤醒：
+- 2）过早唤醒：
 虽然在锁、条件谓词和条件队列之间的三元关系并不复杂，但wait方法的返回并不一定意味着线程正在等待的条件谓词已经变成真了。
 当执行控制重新进入调用wait的代码时，它已经重新获取了与条件队列相关联的锁。现在条件谓词是不是已经变为真了？或许。在发出通知的线程调用notifyAll时，条件谓词可能已经变成真，但在重新获取锁时将再次变成假。在线程被唤醒到wait重新获取锁的这段时间里，可能有其他线程已经获取了这个锁，并修改了对象的状态。或者，条件谓词从调用wait起根本就没有变成真。你并不知道另一个线程为什么调用notify或notifyAll，也许是因为与同一条件队列相关的另一个条件谓词变成了真。一个条件队列与多个条件谓词相关是一种很常见的情况。
 基于所有这些原因，每当线程从wait中唤醒时，都必须再次测试条件谓词。
 
-3）notify与notifyAll：
+- 3）notify与notifyAll：
 由于多个线程可以基于不同的条件谓词在同一个条件队列上等待，因此如果使用notify而不是notifyAll，那么将是一种危险的操作，因为单一的通知很容易导致类似于信号地址（线程必须等待一个已经为真的条件，但在开始等待之前没有检查条件谓词）的问题。
 
 只有同时满足以下两个条件时，才能用单一的notify而不是notifyAll：
-1）所有等待线程的类型都相同。只有一个条件谓词与条件队列相关，并且每个线程在从wait返回后将执行相同的操作。
-2）单进单出：在对象状态上的每次改变，最多只能唤醒一个线程来执行。
+- 1）所有等待线程的类型都相同。只有一个条件谓词与条件队列相关，并且每个线程在从wait返回后将执行相同的操作。
+- 2）单进单出：在对象状态上的每次改变，最多只能唤醒一个线程来执行。
 
-suspend resume stop destroy（废弃方法）
-线程的暂停、恢复、停止对应的就是suspend、resume和stop/destroy。
-suspend会使当前线程进入阻塞状态并不释放占有的资源，容易引起死锁；
-stop在结束一个线程时不会去释放占用的资源。它会直接终止run方法的调用，并且会抛出一个ThreadDeath错误。
-destroy只是抛出一个NoSuchMethodError。
-suspend和resume已被wait、notify取代。
+### suspend resume stop destroy（废弃方法）
+- 线程的暂停、恢复、停止对应的就是suspend、resume和stop/destroy。
+- suspend会使当前线程进入阻塞状态并不释放占有的资源，容易引起死锁；
+- stop在结束一个线程时不会去释放占用的资源。它会直接终止run方法的调用，并且会抛出一个ThreadDeath错误。
+- destroy只是抛出一个NoSuchMethodError。
+- suspend和resume已被wait、notify取代。
 
-线程的优先级
+### 线程的优先级
 
 判断当前线程是否正在执行
 注意优先级是概率而非先后顺序（优先级高可能会执行时间长，但也不一定）
