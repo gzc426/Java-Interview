@@ -659,57 +659,56 @@ CAS的主要缺点是，它将使调用者处理竞争问题，而在锁中能�
 AtomicStampedReference将更新一个“对象-引用”二元组，通过在引用上加上：“版本号”，从而避免ABA问题。类似地，AtomicMarkableRefernce将更新一个“对象引用-布尔值”二元组，在某些算法中将通过这种二元组使节点保存在链表中同时又将其标记为“已删除的节点”。CAS存在ABA，循环时间长开销大，以及只能保证一个共享变量的原子操作（变量合并，AtomicReference）三个问题。
 
 
-Java内存模型 线程同步工具原理
-JMM Java Memory Model
-JMM抽象结构
+# 七.Java内存模型 线程同步工具原理
+## JMM Java Memory Model
+### JMM抽象结构
 在Java中，堆内存在线程之间共享，线程之间的通信由Java内存模型JMM控制。线程之间的共享变量存储在主内存中，每个线程都有一个私有的本地内存（并不真实存在），本地内存中存储了线程读写共享变量的副本。
-
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8750.png)
 
 如果线程A与线程B之间要通信的话,必须要经历下面2个步骤：
-1)线程A把本地内存A中更新过的共享变量刷新到主内存中去。
-2)线程B到主内存中去读取线程A之前已更新过的共享变量。
+- 1)线程A把本地内存A中更新过的共享变量刷新到主内存中去。
+- 2)线程B到主内存中去读取线程A之前已更新过的共享变量。
 
-指令重排序
-在执行程序时，为了提高性能，编译器和CPU常常会对指令进行重排序，分为以下3种类型：
-1、编译优化重排序。编译器在不改变单线程程序语义的前提下，可以重新安排语句执行顺序。
-2、指令级并行的重排序。CPU采用了指令级并行技术将多条指令重叠执行。
-3、内存系统的重排序。由于CPU使用cache和读/写缓冲区，因此加载和存储操作可能在乱序执行。
+### 指令重排序
+- 在执行程序时，为了提高性能，编译器和CPU常常会对指令进行重排序，分为以下3种类型：
+- 1、编译优化重排序。编译器在不改变单线程程序语义的前提下，可以重新安排语句执行顺序。
+- 2、指令级并行的重排序。CPU采用了指令级并行技术将多条指令重叠执行。
+- 3、内存系统的重排序。由于CPU使用cache和读/写缓冲区，因此加载和存储操作可能在乱序执行。
+![](https://github.com/gzc426/picts/blob/master/%E5%9B%BE%E7%89%8751.png)
+- 1属于编译器重排序,2和3属于处理器重排序。这些重排序可能会导致多线程程序出现内存可见性问题。
+- 对于编译器,JMM的编译器重排序规则会禁止特定类型的编译器重排序(不是所有的编译器重排序都要禁止)。
+- 对于处理器重排序,JMM的处理器重排序规则会要求Java编译器在生成指令序列时,插入特定类型的内存屏障(Memory Barriers,Intel称之为Memory Fence)指令,通过内存屏障指令来禁止特定类型的处理器重排序。
 
-
-1属于编译器重排序,2和3属于处理器重排序。这些重排序可能会导致多线程程序出现内存可见性问题。
-对于编译器,JMM的编译器重排序规则会禁止特定类型的编译器重排序(不是所有的编译器重排序都要禁止)。
-对于处理器重排序,JMM的处理器重排序规则会要求Java编译器在生成指令序列时,插入特定类型的内存屏障(Memory Barriers,Intel称之为Memory Fence)指令,通过内存屏障指令来禁止特定类型的处理器重排序。
-内存屏障
+### 内存屏障
 JMM把内存屏障分为四类：
-LoadLoad屏障：对于这样的语句Load1; LoadLoad; Load2，在Load2及后续读取操作要读取的数据被访问前，保证Load1要读取的数据被读取完毕。
-StoreStore屏障：对于这样的语句Store1; StoreStore; Store2，在Store2及后续写入操作执行前，保证Store1的写入操作对其它处理器可见。
-LoadStore屏障：对于这样的语句Load1; LoadStore; Store2，在Store2及后续写入操作被刷出前，保证Load1要读取的数据被读取完毕。
-StoreLoad屏障：对于这样的语句Store1; StoreLoad; Load2，在Load2及后续所有读取操作执行前，保证Store1的写入对所有处理器可见。它的开销是四种屏障中最大的。在大多数处理器的实现中，这个屏障是个万能屏障，兼具其它三种内存屏障的功能。
-happens-before（抽象概念，基于内存屏障）
-JDK1.5后，Java采用JSR133内存模型，通过happens-before概念来阐述操作之间的内存可见性。在JMM中，如果一个操作执行的结果要对另一个操作可见，那么这两个操作之间必须要有happens-before关系。
+- LoadLoad屏障：对于这样的语句Load1; LoadLoad; Load2，在Load2及后续读取操作要读取的数据被访问前，保证Load1要读取的数据被读取完毕。
+- StoreStore屏障：对于这样的语句Store1; StoreStore; Store2，在Store2及后续写入操作执行前，保证Store1的写入操作对其它处理器可见。
+- LoadStore屏障：对于这样的语句Load1; LoadStore; Store2，在Store2及后续写入操作被刷出前，保证Load1要读取的数据被读取完毕。
+- StoreLoad屏障：对于这样的语句Store1; StoreLoad; Load2，在Load2及后续所有读取操作执行前，保证Store1的写入对所有处理器可见。它的开销是四种屏障中最大的。在大多数处理器的实现中，这个屏障是个万能屏障，兼具其它三种内存屏障的功能。
+
+### happens-before（抽象概念，基于内存屏障）
+
+JDK1.5后，Java采用JSR133内存模型，通过happens-before概念来阐述操作之间的内存可见性。在JMM中，**如果一个操作执行的结果要对另一个操作可见，那么这两个操作之间必须要有happens-before关系。**
 
 定义：
-1)如果一个操作happens-before另一个操作,那么第一个操作的执行结果将对第二个操作可见,而且第一个操作的执行顺序排在第二个操作之前。
-2)两个操作之间存在happens-before关系,并不意味着Java平台的具体实现必须要按照happens-before关系指定的顺序来执行。如果重排序之后的执行结果,与按happens-before关系来执行的结果一致,那么这种重排序并不非法(也就是说,JMM允许这种重排序)。
+- 1)如果一个操作happens-before另一个操作,那么第一个操作的执行结果将对第二个操作可见,而且第一个操作的执行顺序排在第二个操作之前。
+- 2)两个操作之间存在happens-before关系,并不意味着Java平台的具体实现必须要按照happens-before关系指定的顺序来执行。如果重排序之后的执行结果,与按happens-before关系来执行的结果一致,那么这种重排序并不非法(也就是说,JMM允许这种重排序)。
 
-上面的1)是JMM对程序员的承诺。从程序员的角度来说,可以这样理解happens-before关系:如果A happens-before B,那么Java内存模型将向程序员保证——A操作的结果将对B可见,且A的执行顺序排在B之前。注意,这只是Java内存模型向程序员做出的保证!
-
-上面的2)是JMM对编译器和处理器重排序的约束原则。正如前面所言,JMM其实是在遵循一个基本原则:只要不改变程序的执行结果(指的是单线程程序和正确同步的多线程程序)编译器和处理器怎么优化都行。JMM这么做的原因是:程序员对于这两个操作是否真的被重排序并不关心,程序员关心的是程序执行时的语义不能被改变(即执行结果不能被改变)。因此,happens-before关系本质上和as-if-serial语义是一回事。
+- 上面的1)是JMM对程序员的承诺。从程序员的角度来说,可以这样理解happens-before关系:如果A happens-before B,那么Java内存模型将向程序员保证——A操作的结果将对B可见,且A的执行顺序排在B之前。注意,这只是Java内存模型向程序员做出的保证!
+- 上面的2)是JMM对编译器和处理器重排序的约束原则。正如前面所言,JMM其实是在遵循一个基本原则:只要不改变程序的执行结果(指的是单线程程序和正确同步的多线程程序)编译器和处理器怎么优化都行。JMM这么做的原因是:程序员对于这两个操作是否真的被重排序并不关心,程序员关心的是程序执行时的语义不能被改变(即执行结果不能被改变)。因此,happens-before关系本质上和as-if-serial语义是一回事。
 
 与程序员密切相关的happens-before规则如下。
-1）程序顺序规则:一个线程中的每个操作,happens-before于该线程中的任意后续操作。（单线程顺序执行）
-2）监视器锁规则:对一个锁的解锁,happens-before于随后对这个锁的加锁。（先解锁后加锁）
-比如:
-lock.unlock();
-lock.lock();
-那么不会重排序，因为重排序后肯定会发生死锁
+- 1）程序顺序规则:一个线程中的每个操作,happens-before于该线程中的任意后续操作。（单线程顺序执行）
+- 2）监视器锁规则:对一个锁的解锁,happens-before于随后对这个锁的加锁。（先解锁后加锁）比如:
+    - lock.unlock();
+    - lock.lock();
+    - 那么不会重排序，因为重排序后肯定会发生死锁
+- 3）volatile变量规则:对一个volatile域的写,happens-before于任意后续对这个volatile域的读。（先写后读）
+- 4）传递性:如果A happens-before B,且B happens-before C,那么A happens-before C。
+- 5）start规则:如果线程A执行操作ThreadB.start()，那么A线程的ThreadB.start() happens-before于线程B的任意操作。
+- 6）join规则:如果线程A执行操作ThreadB.join()并成功返回，那么线程B中的任意操作happens-before于线程A从ThreadB.join()操作成功返回。
 
-3）volatile变量规则:对一个volatile域的写,happens-before于任意后续对这个volatile域的读。（先写后读）
-4）传递性:如果A happens-before B,且B happens-before C,那么A happens-before C。
-5）start规则:如果线程A执行操作ThreadB.start()，那么A线程的ThreadB.start() happens-before于线程B的任意操作。
-6）join规则:如果线程A执行操作ThreadB.join()并成功返回，那么线程B中的任意操作happens-before于线程A从ThreadB.join()操作成功返回。
-
-happens-before与JMM的关系如下：
+**happens-before与JMM的关系如下：**
 
 
 指令重排序
