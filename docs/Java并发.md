@@ -2090,36 +2090,27 @@ public class QuoteTask implements Callable<TravelQuote> {
 - 6.当设置allowCoreThreadTimeOut(true)时，线程池中corePoolSize线程空闲时间达到keepAliveTime也将关闭
 
 创建一个线程池时需要以下几个参数：
-1）corePoolSize（线程池的基本大小）：当提交一个任务到线程池时，线程池会创建一个线程来执行任务，即使其他空闲的基本线程能够执行新任务也会创建线程，等到需要执行的任务数大于线程池基本大小时就不再创建。如果调用线程池的prestartAllCoreThreads方法，线程池会提前创建并启动所有基本线程。
-2）runnableTaskQueue（任务队列）：用于保存等待执行的任务的阻塞队列。可以选择以下几个阻塞队列：
-	a）ArrayBlockingQueue：基于数组的有界阻塞队列，FIFO
-	b) LinkedBlockingQueue：基于链表的无界阻塞队列，FIFO，吞吐量高于ArrayBlockingQueue，Executors.newFixedThreadPoll()使用了这个队列
-	c）SynchronousQueue：一个只存储一个元素的阻塞队列，每个插入操作必须等到另一个线程调用移除操作，否则插入一直处于阻塞状态，吞吐量高于LinkedBlockingQueue，Executors#newCachedThreadPoll()使用了这个队列
-	d）PriorityBlockingQueue：具有优先级的无界阻塞队列
-
-3）maximumPoolSize（线程池的最大数量）：线程池允许创建的最大线程数。如果队列满了，并且已创建的线程数小于最大线程数，则线程池会再创建新的线程执行任务。如果使用了无界队列该参数就没有意义了。
-
-4）ThreadFactory：用于设置创建线程的工厂，可以通过线程工厂给每个创建出来的线程设置更有意义的名字。
-
-5）RejectedExecutionHandler（饱和策略）：当队列和线程池都满了，说明线程池处于饱和状态，或者当线程池已关闭时，会采用一种策略处理提交的新任务。这个策略默认是AbortPolicy，表示无法处理新任务时抛出异常。有以下四种饱和策略：
-	a）AbortPolicy：直接抛出异常
-	b）CallerRunsPolicy：使用调用者所在线程来运行任务
-	c）DiscardOldestPolicy：丢弃队列中最近的一个任务，并执行当前任务
-	d）DiscardPolicy：不处理，直接丢弃
-
+- 1）corePoolSize（线程池的基本大小）：当提交一个任务到线程池时，线程池会创建一个线程来执行任务，即使其他空闲的基本线程能够执行新任务也会创建线程，等到需要执行的任务数大于线程池基本大小时就不再创建。如果调用线程池的prestartAllCoreThreads方法，线程池会提前创建并启动所有基本线程。
+- 2）runnableTaskQueue（任务队列）：用于保存等待执行的任务的阻塞队列。可以选择以下几个阻塞队列：
+    - a）ArrayBlockingQueue：基于数组的有界阻塞队列，FIFO
+    - b) LinkedBlockingQueue：基于链表的无界阻塞队列，FIFO，吞吐量高于ArrayBlockingQueue，Executors.newFixedThreadPoll()使用了这个队列
+    - c）SynchronousQueue：一个只存储一个元素的阻塞队列，每个插入操作必须等到另一个线程调用移除操作，否则插入一直处于阻塞状态，吞吐量高于LinkedBlockingQueue，Executors#newCachedThreadPoll()使用了这个队列
+    - d）PriorityBlockingQueue：具有优先级的无界阻塞队列
+- 3）maximumPoolSize（线程池的最大数量）：线程池允许创建的最大线程数。如果队列满了，并且已创建的线程数小于最大线程数，则线程池会再创建新的线程执行任务。如果使用了无界队列该参数就没有意义了。
+- 4）ThreadFactory：用于设置创建线程的工厂，可以通过线程工厂给每个创建出来的线程设置更有意义的名字。
+- 5）RejectedExecutionHandler（饱和策略）：当队列和线程池都满了，说明线程池处于饱和状态，或者当线程池已关闭时，会采用一种策略处理提交的新任务。这个策略默认是AbortPolicy，表示无法处理新任务时抛出异常。有以下四种饱和策略：
+    - a）AbortPolicy：直接抛出异常
+    - b）CallerRunsPolicy：使用调用者所在线程来运行任务
+    - c）DiscardOldestPolicy：丢弃队列中最近的一个任务，并执行当前任务
+    - d）DiscardPolicy：不处理，直接丢弃
 也可以自定义饱和策略。
-
-6）keepAliveTime（线程活动保持时间）：线程池的工作线程空闲后，保持存活的时间。出现timeout情况下，而且线程数超过了核心线程数，会销毁销毁线程。保持在corePoolSize数。除非设置了allowCoreThreadTimeOut和超时时间，这种情况线程数可能减少到0，最大可能是Integer.MAX_VALUE。
+- 6）keepAliveTime（线程活动保持时间）：线程池的工作线程空闲后，保持存活的时间。出现timeout情况下，而且线程数超过了核心线程数，会销毁销毁线程。保持在corePoolSize数。除非设置了allowCoreThreadTimeOut和超时时间，这种情况线程数可能减少到0，最大可能是Integer.MAX_VALUE。
 如果任务很多，每个任务执行的时间比较短，可以调大时间，提高线程的利用率。
+    - allowCoreThreadTimeOut为true该值为true，则线程池数量最后销毁到0个。
+    - allowCoreThreadTimeOut为false销毁机制：超过核心线程数时，而且（超过最大值或者timeout过），就会销毁。
+- 7）TimeUnit（线程活动保持时间的单位）
+### 使用注意
 
-allowCoreThreadTimeOut为true
-该值为true，则线程池数量最后销毁到0个。
-
-allowCoreThreadTimeOut为false
-销毁机制：超过核心线程数时，而且（超过最大值或者timeout过），就会销毁。
-
-7）TimeUnit（线程活动保持时间的单位）
-使用注意
 1、只有当任务都是同类型并且相互独立时，线程池的性能才能达到最佳。如果将运行时间较长的与运行时间较短的任务混合在一起，那么除非线程池很大，否则将可能造成拥塞。如果提交的任务依赖于其他任务，那么除非线程池无限大，否则将可能造成死锁。幸运的是，在基于网络的典型服务器应用程序中——web服务器、邮件服务器、文件服务器等，它们的请求通常都是同类型的并且相互独立的。
 
 2、设置线程池的大小：
