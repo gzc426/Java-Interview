@@ -939,32 +939,36 @@ Intel对lock前缀的说明如下：
 
 
 # 同步容器
+
 同步容器类都是线程安全的，但在某些情况下可能需要额外的客户端加锁来保护复合操作。容器上常见的复合操作包括：迭代，跳跃，以及条件运算。
-ConcurrentHashMap
+## ConcurrentHashMap
 它们提供的迭代器不会抛出ConcurrentModificationException，因此不需要再迭代过程中对容器加锁。ConcurrentHasMap返回的迭代器具有弱一致性，而并非及时失败。弱一致性的迭代器可以容忍并发的修改，当修改迭代器会遍历已有的元素，并可以在迭代器被构造后将修改操作反映给容器。
 
-CopyOnWriteArrayList
-用于替代同步List，在某些情况下它提供了更好的并发性能，并且在迭代期间不需要对容器进行加锁或复制。在每次修改时，都会创建并重新发布一个新的容器副本，从而实现可变性。写入时复制容器返回的迭代器不会抛出
-ConcurrentModificationException，并且返回的元素与迭代器创建时的元素完全一致，而不必考虑之后修改操作所带来的影响。
-显然，每当修改容器时都会复制底层数组，这需要一定的开销，特别是当容器的规模较大时，仅当迭代操作远远多于修改操作时，才应该使用写入时复制容器。
+## CopyOnWriteArrayList
+- 用于替代同步List，在某些情况下它提供了更好的并发性能，并且在迭代期间不需要对容器进行加锁或复制。在每次修改时，都会创建并重新发布一个新的容器副本，从而实现可变性。写入时复制容器返回的迭代器不会抛出
+- ConcurrentModificationException，并且返回的元素与迭代器创建时的元素完全一致，而不必考虑之后修改操作所带来的影响。
+- 显然，每当修改容器时都会复制底层数组，这需要一定的开销，特别是当容器的规模较大时，仅当迭代操作远远多于修改操作时，才应该使用写入时复制容器。
 
-BlockingQueue
-阻塞队列提供了可阻塞的put和take方法，以及支持定时的offer和poll方法。如果队列已经满了，那么put方法将阻塞直到有空间可用；如果队列为空，那么take方法将会阻塞直到有元素可用。队列可以是有界的也可以是无界的，无界队列永远都不会充满，因此无界队列上的put方法也永远不会阻塞。
-在构建高可靠的应用程序时，有界队列ArrayBlockingQueue是一种强大的资源管理工具：它们能抑制并防止产生过多的工作项，使应用程序在负荷过载的情况下变得更加健壮。
+## BlockingQueue
+- 阻塞队列提供了可阻塞的put和take方法，以及支持定时的offer和poll方法。如果队列已经满了，那么put方法将阻塞直到有空间可用；如果队列为空，那么take方法将会阻塞直到有元素可用。队列可以是有界的也可以是无界的，无界队列永远都不会充满，因此无界队列上的put方法也永远不会阻塞。
+- 在构建高可靠的应用程序时，有界队列ArrayBlockingQueue是一种强大的资源管理工具：它们能抑制并防止产生过多的工作项，使应用程序在负荷过载的情况下变得更加健壮。
 
-ThreadLocal
+## ThreadLocal
+
 在线程之间共享变量是存在风险的，有时可能要避免共享变量，使用ThreadLocal辅助类为各个线程提供各自的实例。
 例如有一个静态变量
-
+```
 public static final SimpleDateFormat sdf = new SimpleDateFormat(“yyyy-MM-dd”);
+```
 如果两个线程同时调用sdf.format(…)
 那么可能会很混乱，因为sdf使用的内部数据结构可能会被并发的访问所破坏。当然可以使用线程同步，但是开销很大；或者也可以在需要时构造一个局部SImpleDateFormat对象。但这很浪费
 
-同步工具使用
-Semaphore（信号量）
-信号量用来控制同时访问某个特定资源的操作数量，或者同时执行某个指定操作的数量。还可以用来实现某种资源池，或者对容器施加边界。
-Semaphore中管理着一组虚拟的许可permit，许可的初始数量可通过构造函数来指定。在执行操作时可以首先获得许可（只要还有剩余的许可），并在使用以后释放许可。如果没有许可，那么acquire将阻塞直到有许可（或者直到被中断或者操作超时）。release方法将返回一个许可给信号量。计算信号量的一种简化形式是二值信号量，即初始值为1的Semaphore。二值信号量可以用作互斥体，并具备不可重入的加锁语义：谁拥有这个唯一的许可，谁就拥有了互斥锁。
-可以用于实现资源池，当池为空时，请求资源将会阻塞，直至存在资源。将资源返回给池之后会调用release释放许可。
+# 同步工具使用
+## Semaphore（信号量）
+- 信号量用来控制同时访问某个特定资源的操作数量，或者同时执行某个指定操作的数量。还可以用来实现某种资源池，或者对容器施加边界。
+- Semaphore中管理着一组虚拟的许可permit，许可的初始数量可通过构造函数来指定。在执行操作时可以首先获得许可（只要还有剩余的许可），并在使用以后释放许可。如果没有许可，那么acquire将阻塞直到有许可（或者直到被中断或者操作超时）。release方法将返回一个许可给信号量。计算信号量的一种简化形式是二值信号量，即初始值为1的Semaphore。二值信号量可以用作互斥体，并具备不可重入的加锁语义：谁拥有这个唯一的许可，谁就拥有了互斥锁。
+- 可以用于实现资源池，当池为空时，请求资源将会阻塞，直至存在资源。将资源返回给池之后会调用release释放许可。
+```
 public class BoundedHashSet<T> {
     private final Set<T> set;
     private final Semaphore semaphore;
@@ -995,21 +999,26 @@ public class BoundedHashSet<T> {
     }
     
 }
+```
 
-CyclicBarrier（可循环使用的屏障/栅栏）
-CountDownLatch	CyclicBarrier
-减计数方式	加计数方式
-计算为0时释放所有等待的线程	计数达到指定值时释放所有等待线程
-计数为0时，无法重置	计数达到指定值时，计数置为0重新开始
-调用countDown()方法计数减一，调用await()方法只进行阻塞，对计数没任何影响	调用await()方法计数加1，若加1后的值不等于构造方法的值，则线程阻塞
-不可重复利用	可重复利用
-线程在countDown()之后，会继续执行自己的任务，而CyclicBarrier会在所有线程任务结束之后，才会进行后续任务。
+## CyclicBarrier（可循环使用的屏障/栅栏）
 
-Barrier类似于闭锁，它能阻塞一组线程直到某个线程发生。栅栏与闭锁的关键区别在于，前者未达到条件时每个线程都会阻塞在await上，直至条件满足所有线程解除阻塞，后者未达到条件时countDown不会阻塞，条件满足时会解除await线程的阻塞。
+CountDownLatch  | CyclicBarrier
+  ------------- | -------------  
+减计数方式 | 加计数方式
+计算为0时释放所有等待的线  | 计数达到指定值时释放所有等待线程
+计算为0时释放所有等待的线程  | 计数达到指定值时释放所有等待线程
+计数为0时，无法重置 | 计数达到指定值时，计数置为0重新开始
+调用countDown()方法计数减一，调用await()方法只进行阻塞，对计数没任何影响  | 调用await()方法计数加1，若加1后的值不等于构造方法的值，则线程阻塞
+不可重复利用  | 可重复利用
 
-CyclicBarrier可以使一定数量的参与方反复地在栅栏位置汇集，它在并行迭代算法中非常有用；这种算法通常将一个问题拆分成一系列相互独立的子问题。当线程到达栅栏位置时将调用await方法，这个方法将阻塞直到所有线程都达到栅栏位置。如果所有线程都到达了栅栏位置，那么栅栏将打开，此时所有线程都被释放，而栅栏将被重置以便下次使用。
-如果对await方法的调用超时，或者await阻塞的线程被中断，那么栅栏就被认为是打破了，所有阻塞的await调用都被终止并抛出BrokenBarrierException。如果成功通过栅栏，那么await将为每个线程返回一个唯一的到达索引号，我们可以利用这些索引来选举产生一个领导线程，并在下一次迭代中由该领导线程执行一些特殊的工作。CyclicBarrier还可以使你将一个栅栏操作传递给构造函数，这是一个Runnable，当成功通过栅栏时会在一个子任务线程中执行它。
-可以用于多线程计算数据，最后合并计算结果的场景。CountDownLatch的计数器只能使用一次，而CyclicBarrier的计数器可以使用reset方法重置。
+
+- 线程在countDown()之后，会继续执行自己的任务，而CyclicBarrier会在所有线程任务结束之后，才会进行后续任务。
+- Barrier类似于闭锁，它能阻塞一组线程直到某个线程发生。栅栏与闭锁的关键区别在于，前者未达到条件时每个线程都会阻塞在await上，直至条件满足所有线程解除阻塞，后者未达到条件时countDown不会阻塞，条件满足时会解除await线程的阻塞。
+- CyclicBarrier可以使一定数量的参与方反复地在栅栏位置汇集，它在并行迭代算法中非常有用；这种算法通常将一个问题拆分成一系列相互独立的子问题。当线程到达栅栏位置时将调用await方法，这个方法将阻塞直到所有线程都达到栅栏位置。如果所有线程都到达了栅栏位置，那么栅栏将打开，此时所有线程都被释放，而栅栏将被重置以便下次使用。
+- 如果对await方法的调用超时，或者await阻塞的线程被中断，那么栅栏就被认为是打破了，所有阻塞的await调用都被终止并抛出BrokenBarrierException。如果成功通过栅栏，那么await将为每个线程返回一个唯一的到达索引号，我们可以利用这些索引来选举产生一个领导线程，并在下一次迭代中由该领导线程执行一些特殊的工作。CyclicBarrier还可以使你将一个栅栏操作传递给构造函数，这是一个Runnable，当成功通过栅栏时会在一个子任务线程中执行它。
+- 可以用于多线程计算数据，最后合并计算结果的场景。CountDownLatch的计数器只能使用一次，而CyclicBarrier的计数器可以使用reset方法重置。
+```
 /**
  * 通过CyclicBarrier协调细胞自动衍生系统中的计算
  */
@@ -1070,11 +1079,12 @@ public class CellularAutomata {
         mainBoard.waitForConvergence();
     }
 }
+```
+## Exchanger（两个线程交换数据）
+- 另一种形式的栅栏是Exchanger，它是一种两方栅栏，各方在栅栏位置上交换数据。当两方执行不对称的操作时，Exchanger会非常有用。
+- Exchanger用于进行线程间的数据交换。它提供一个同步点，在这个同步点两个线程可以交换彼此的数据。这两个线程通过exchange方法交换数据， 如果第一个线程先执行exchange方法，它会一直等待第二个线程也执行exchange，当两个线程都到达同步点时，这两个线程就可以交换数据，将本线程生产出来的数据传递给对方。
 
-
-Exchanger（两个线程交换数据）
-另一种形式的栅栏是Exchanger，它是一种两方栅栏，各方在栅栏位置上交换数据。当两方执行不对称的操作时，Exchanger会非常有用。
-Exchanger用于进行线程间的数据交换。它提供一个同步点，在这个同步点两个线程可以交换彼此的数据。这两个线程通过exchange方法交换数据， 如果第一个线程先执行exchange方法，它会一直等待第二个线程也执行exchange，当两个线程都到达同步点时，这两个线程就可以交换数据，将本线程生产出来的数据传递给对方。
+```
 public class TestExchanger {
 
     private Exchanger<String> exchanger = new Exchanger<String>();
@@ -1114,10 +1124,14 @@ public class TestExchanger {
         new TestExchanger().start();
     }
 }
+```
 
-CountDownLatch（闭锁）
-闭锁可以延迟线程的进度直到其达到终止状态。闭锁的作用相当于一扇门：在闭锁到达结束状态之前，这扇门一直是关闭的，并且没有任何线程能通过，当到达结束状态时，这扇门会打开并允许所有的线程通过。当闭锁达到结束状态后，将不会再改变状态，因此这扇门将永远保持打开状态。闭锁可以用来确保某些活动指导其他活动都完成后才继续执行。
-闭锁状态包括一个计数器，该计数器被初始化为一个正数，表示需要等待的事件数量。countDown方法递减计数器，表示有一个事件发生了，而await方法等待计数器达到0，这表示所有需要等待的事件都已经发生。如果计数器的值非零，那么await会一直阻塞直到计数器为0，或者等待中的线程中断，或者等待超时。
+## CountDownLatch（闭锁）
+
+- 闭锁可以延迟线程的进度直到其达到终止状态。闭锁的作用相当于一扇门：在闭锁到达结束状态之前，这扇门一直是关闭的，并且没有任何线程能通过，当到达结束状态时，这扇门会打开并允许所有的线程通过。当闭锁达到结束状态后，将不会再改变状态，因此这扇门将永远保持打开状态。闭锁可以用来确保某些活动指导其他活动都完成后才继续执行。
+- 闭锁状态包括一个计数器，该计数器被初始化为一个正数，表示需要等待的事件数量。countDown方法递减计数器，表示有一个事件发生了，而await方法等待计数器达到0，这表示所有需要等待的事件都已经发生。如果计数器的值非零，那么await会一直阻塞直到计数器为0，或者等待中的线程中断，或者等待超时。
+
+```
 public class TestCountDownLatch {
     public static void main(String[] args) {
         CountDownLatch latch = new CountDownLatch(5);
@@ -1156,20 +1170,22 @@ class LatchDemo implements Runnable {
         }
     }
 }
+```
 
+## FutureTask（Future实现类）
 
-FutureTask（Future实现类）
-FurureTask是Future接口的唯一实现类。
-FutureTask表示的计算是通过Callable来实现的，相当于一种可生成结果的Runnable，并且可以处于以下3种状态：等待运行、正在运行和运行完成。
-Future.get方法的行为取决于任务的状态。如果任务已经完成，那么get会立即返回结果，否则会阻塞直到任务进入完成状态，然后返回结果或者抛出异常。FutureTask将计算结果从执行计算的线程传递到获取这个结果的线程，而FutureTask的规范确保了这种传递过程能实现结果的安全发布。
-Callable表示的任务可以抛出受检查的或未受检查的异常，并且任何代码都可能抛出一个Error。无论任务代码抛出什么异常，都会被封装到一个ExecutionException中，并在future.get中被重新抛出。
-当get方法抛出ExecutionException，可能是以下三种情况之一：Callable抛出的受检查异常，RuntimeException，以及Error。
+- FurureTask是Future接口的唯一实现类。
+- FutureTask表示的计算是通过Callable来实现的，相当于一种可生成结果的Runnable，并且可以处于以下3种状态：等待运行、正在运行和运行完成。
+- Future.get方法的行为取决于任务的状态。如果任务已经完成，那么get会立即返回结果，否则会阻塞直到任务进入完成状态，然后返回结果或者抛出异常。- --- -- FutureTask将计算结果从执行计算的线程传递到获取这个结果的线程，而FutureTask的规范确保了这种传递过程能实现结果的安全发布。
+- Callable表示的任务可以抛出受检查的或未受检查的异常，并且任何代码都可能抛出一个Error。无论任务代码抛出什么异常，都会被封装到一个ExecutionException中，并在future.get中被重新抛出。
+- 当get方法抛出ExecutionException，可能是以下三种情况之一：Callable抛出的受检查异常，RuntimeException，以及Error。
 
+### Future
 
-
-Future
 Future接口设计初衷是对将来某个时刻会发生的结果进行建模。它建模了一种异步计算，返回一个执行运算结果的引用，当运算结束后，这个引用被返回给调用方。 在Future中触发那些潜在耗时的操作把调用线程解放出来，让它能继续执行其他有价值的工作，不再需要等待耗时的操作完成。
-示例
+
+**示例**
+```
 public void future() {
     ExecutorService executor = Executors.newCachedThreadPool();
     Future<Double> future = executor.submit(new Callable<Double>() {
@@ -1203,17 +1219,23 @@ private double doSomethingComputation() {
     System.out.println("doSomethingComputation");
     return 0.1;
 }
+```
 
-局限性
+**局限性**
+
 Future无法实现以下的功能。
-1) 将两个异步操作计算合并为一个——这两个异步计算之间相互独立，同时第二个又依赖于第一个的记过
-2）等待Future集合中的所有任务都完成
-3）仅等待Future集合中最快结束的任务完成，并返回它的结果
-4）通过编程方式完成一个Future任务的执行（以手工设定异步操作结果）
-5）应对Future的完成事件（完成回调）
-CompletableFuture
-实现异步API（将任务交给另一线程完成，该线程与调用方异步，通过回调函数或阻塞的方式取得任务结果）
-1）Shop
+- 1) 将两个异步操作计算合并为一个——这两个异步计算之间相互独立，同时第二个又依赖于第一个的记过
+- 2）等待Future集合中的所有任务都完成
+- 3）仅等待Future集合中最快结束的任务完成，并返回它的结果
+- 4）通过编程方式完成一个Future任务的执行（以手工设定异步操作结果）
+- 5）应对Future的完成事件（完成回调）
+
+## CompletableFuture
+
+**实现异步API（将任务交给另一线程完成，该线程与调用方异步，通过回调函数或阻塞的方式取得任务结果）**
+
+**1）Shop**
+```
 public class Shop {
     private ThreadLocalRandom random;
     private ExecutorService executorService = Executors.newCachedThreadPool();
@@ -1273,8 +1295,10 @@ public class Shop {
         System.out.println("doSomethingElse");
     }
 }
+```
 
-2) GracefulShop
+**2) GracefulShop**
+```
 工厂方法创建的Future自己内部维护了一个线程池。
 public class GracefulShop {
     private ThreadLocalRandom random;
@@ -1322,11 +1346,12 @@ public class GracefulShop {
         System.out.println("doSomethingElse");
     }
 }
+```
 
+### 将批量同步操作转为异步操作（并行流/CompletableFuture）
 
-
-将批量同步操作转为异步操作（并行流/CompletableFuture）
 如果原本的getPrice是同步方法的话，那么如果想批量调用getPrice，提高效率的方法要么使用并行流，要么使用CompletableFuture。
+```
 public class SyncShop {
     private String name;
 
@@ -1392,19 +1417,17 @@ public class FutureTest {
         calculator.findPricesWithCompletableFuture("my favorite product");    
     }
 }
-
-
+```
 使用并行流还是CompletableFuture？
 前者是无法调整线程池的大小的（处理器个数），而后者可以。
 如果是计算密集型应用，且没有IO，那么推荐使用并行流
 如果是IO密集型，需要等待IO，那么使用CompletableFuture灵活性更高，比如根据《Java并发编程实战》中给出的公式计算线程池合适的大小。
 
-
-
-多个异步任务合并
+### 多个异步任务合并
 逻辑如下：
 从每个商店获取price，price以某种格式返回。拿到price后解析price，然后调用远程API根据折扣计算最终price。
 可以分为三个任务，每个商店都要执行这三个任务。
+```
 public class PipelineShop {
     private String name;
 
@@ -1514,9 +1537,10 @@ public class BestProductPriceWithDiscountCalculator {
         return futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
     }
 }
+```
 
-
-回调
+### 回调
+```
 public class CallbackBestProductPriceCalculator {
     private List<PipelineShop> shops = Arrays.asList(
             new PipelineShop("BestPrice"),
@@ -1546,31 +1570,39 @@ public void testCallback(){
     ).toArray(size -> new CompletableFuture[size]);
     CompletableFuture.allOf(futures).join();
 }
+```
 
 
 
+### API
 
-API
 CompletableFuture类实现了CompletionStage和Future接口。Future是Java 5添加的类，用来描述一个异步计算的结果，但是获取一个结果时方法较少,要么通过轮询isDone，确认完成后，调用get()获取值，要么调用get()设置一个超时时间。但是这个get()方法会阻塞住调用线程，这种阻塞的方式显然和我们的异步编程的初衷相违背。
 为了解决这个问题，JDK吸收了guava的设计思想，加入了Future的诸多扩展功能形成了CompletableFuture。
 
 CompletionStage是一个接口，从命名上看得知是一个完成的阶段，它里面的方法也标明是在某个运行阶段得到了结果之后要做的事情。、
-supplyAsync 提交任务
+
+#### supplyAsync 提交任务
+```
 public static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier);
 public static <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier, Executor executor);
-
-thenApply 变换（等待前一个任务返回后执行，处于同一个CompletableFuture）
+```
+#### thenApply 变换（等待前一个任务返回后执行，处于同一个CompletableFuture）
+```
 public <U> CompletionStage<U> thenApply(Function<? super T,? extends U> fn);
 public <U> CompletionStage<U> thenApplyAsync(Function<? super T,? extends U> fn);
 public <U> CompletionStage<U> thenApplyAsync(Function<? super T,? extends U> fn,Executor executor);
+```
 首先说明一下以Async结尾的方法都是可以异步执行的，如果指定了线程池，会在指定的线程池中执行，如果没有指定，默认会在ForkJoinPool.commonPool()中执行，下文中将会有好多类似的，都不详细解释了。关键的入参只有一个Function，它是函数式接口，所以使用Lambda表示起来会更加优雅。它的入参是上一个阶段计算后的结果，返回值是经过转化后结果。
 不带Async的方法会在和前一个任务相同的线程中处理；
 以Async的方法会将任务提交到一个线程池，所有每个任务是由不同的线程处理的。
+```
 public void thenApply() {
     String result = CompletableFuture.supplyAsync(() -> "hello").thenApply(s -> s + " world").join();
     System.out.println(result);
 }
-thenAccept 消耗
+```
+#### thenAccept 消耗
+```
 public CompletionStage<Void> thenAccept(Consumer<? super T> action);
 public CompletionStage<Void> thenAcceptAsync(Consumer<? super T> action);
 public CompletionStage<Void> thenAcceptAsync(Consumer<? super T> action,Executor executor);
@@ -1578,8 +1610,10 @@ public CompletionStage<Void> thenAcceptAsync(Consumer<? super T> action,Executor
 public void thenAccept() {
     CompletableFuture.supplyAsync(() -> "hello").thenAccept(s -> System.out.println(s + " world"));
 }
+```
 
-thenRun 执行下一步操作，不关心上一步结果 
+#### thenRun 执行下一步操作，不关心上一步结果 
+```
 public CompletionStage<Void> thenRun(Runnable action);
 public CompletionStage<Void> thenRunAsync(Runnable action);
 public CompletionStage<Void> thenRunAsync(Runnable action,Executor executor);
@@ -1595,16 +1629,16 @@ public void thenRun() {
         return "hello";
     }).thenRun(() -> System.out.println("hello world"));
 }
+``` 
 
-
-
-
-thenCombine 结合两个CompletionStage的结果，进行转化后返回 
+#### thenCombine 结合两个CompletionStage的结果，进行转化后返回 
+```
 public <U,V> CompletionStage<V> thenCombine(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn);
 public <U,V> CompletionStage<V> thenCombineAsync(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn);
 public <U,V> CompletionStage<V> thenCombineAsync(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn,Executor executor);
-
+```
 它需要原来的处理返回值，并且other代表的CompletionStage也要返回值之后，利用这两个返回值，进行转换后返回指定类型的值。
+```
 public void thenCombine() {
     String result = CompletableFuture.supplyAsync(() -> {
         try {
@@ -1623,18 +1657,24 @@ public void thenCombine() {
     }), (s1, s2) -> s1 + " " + s2).join();
     System.out.println(result);
 }
+```
 
-
-thenCompose（合并多个CompletableFuture，流水线执行，在调用外部接口返回CompletableFuture类型时更方便）
+#### thenCompose（合并多个CompletableFuture，流水线执行，在调用外部接口返回CompletableFuture类型时更方便）
+```
 <U> CompletableFuture<U> thenCompose(Function<? super T,CompletableFuture<U>> fn);
-thenCompose方法允许对两个异步操作（supplyAsync）进行流水线，第一个操作完成时，将其结果作为参数传递给第二个操作。
-创建两个CompletableFuture，对第一个CompletableFuture对象调用thenCompose，并向其传递一个函数。当第一个CompletableFuture执行完毕后，它的结果将作为该函数的参数，这个函数的返回值是以第一个CompletableFuture的返回做输入计算出的第二个CompletableFuture对象。
+```
 
-thenAccptBoth 结合两个CompletionStage的结果，进行消耗 
+- thenCompose方法允许对两个异步操作（supplyAsync）进行流水线，第一个操作完成时，将其结果作为参数传递给第二个操作。
+- 创建两个CompletableFuture，对第一个CompletableFuture对象调用thenCompose，并向其传递一个函数。当第一个CompletableFuture执行完毕后，它的结果将作为该函数的参数，这个函数的返回值是以第一个CompletableFuture的返回做输入计算出的第二个CompletableFuture对象。
+
+#### thenAccptBoth 结合两个CompletionStage的结果，进行消耗 
+```
 public <U> CompletionStage<Void> thenAcceptBoth(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action);
 public <U> CompletionStage<Void> thenAcceptBothAsync(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action);
 public <U> CompletionStage<Void> thenAcceptBothAsync(CompletionStage<? extends U> other,BiConsumer<? super T, ? super U> action,     Executor executor);
+```
 它需要原来的处理返回值，并且other代表的CompletionStage也要返回值之后，利用这两个返回值，进行消耗。
+```
 public void thenAcceptBoth() {
     CompletableFuture.supplyAsync(() -> {
         try {
@@ -1652,14 +1692,16 @@ public void thenAcceptBoth() {
         return "world";
     }), (s1, s2) -> System.out.println(s1 + " " + s2));
 }
+```
 
-
-
-runAfterBoth 在两个CompletionStage都运行完执行，不关心上一步结果
+#### runAfterBoth 在两个CompletionStage都运行完执行，不关心上一步结果
+```
 public CompletionStage<Void> runAfterBoth(CompletionStage<?> other,Runnable action);
 public CompletionStage<Void> runAfterBothAsync(CompletionStage<?> other,Runnable action);
 public CompletionStage<Void> runAfterBothAsync(CompletionStage<?> other,Runnable action,Executor executor);
+```
 不关心这两个CompletionStage的结果，只关心这两个CompletionStage执行完毕，之后在进行操作（Runnable）。
+```
 public void runAfterBoth() {
     CompletableFuture.supplyAsync(() -> {
         try {
@@ -1677,13 +1719,16 @@ public void runAfterBoth() {
         return "s2";
     }), () -> System.out.println("hello world"));
 }
+```
 
-
-applyToEither 两个CompletionStage，谁计算的快，我就用那个CompletionStage的结果进行下一步的转化操作 
+#### applyToEither 两个CompletionStage，谁计算的快，我就用那个CompletionStage的结果进行下一步的转化操作 
+```
 public <U> CompletionStage<U> applyToEither(CompletionStage<? extends T> other,Function<? super T, U> fn);
 public <U> CompletionStage<U> applyToEitherAsync(CompletionStage<? extends T> other,Function<? super T, U> fn);
 public <U> CompletionStage<U> applyToEitherAsync(CompletionStage<? extends T> other,Function<? super T, U> fn,Executor executor);
+```
 我们现实开发场景中，总会碰到有两种渠道完成同一个事情，所以就可以调用这个方法，找一个最快的结果进行处理。
+```
 public void applyToEither() {
     String result = CompletableFuture.supplyAsync(() -> {
         try {
@@ -1702,10 +1747,10 @@ public void applyToEither() {
     }), s -> s).join();
     System.out.println(result);
 }
+```
 
-
-
-acceptEither 两个CompletionStage，谁计算的快，我就用那个CompletionStage的结果进行下一步的消耗操作 
+#### acceptEither 两个CompletionStage，谁计算的快，我就用那个CompletionStage的结果进行下一步的消耗操作 
+```
 public CompletionStage<Void> acceptEither(CompletionStage<? extends T> other,Consumer<? super T> action);
 public CompletionStage<Void> acceptEitherAsync(CompletionStage<? extends T> other,Consumer<? super T> action);
 public CompletionStage<Void> acceptEitherAsync(CompletionStage<? extends T> other,Consumer<? super T> action,Executor executor);
@@ -1729,9 +1774,9 @@ public void acceptEither() {
     while (true) {
     }
 }
-
-
-runAfterEither 两个CompletionStage，任何一个完成了都会执行下一步的操作，不关心上一步结果
+``` 
+#### runAfterEither 两个CompletionStage，任何一个完成了都会执行下一步的操作，不关心上一步结果
+```
 public CompletionStage<Void> runAfterEither(CompletionStage<?> other,Runnable action);
 public CompletionStage<Void> runAfterEitherAsync(CompletionStage<?> other,Runnable action);
 public CompletionStage<Void> runAfterEitherAsync(CompletionStage<?> other,Runnable action,Executor executor);
@@ -1752,9 +1797,10 @@ public void runAfterEither() {
         return "s2";
     }), () -> System.out.println("hello world"));
 }
+```
 
-
-exceptionally 当运行时出现了异常，可以进行补偿
+#### exceptionally 当运行时出现了异常，可以进行补偿
+```
 public CompletionStage<T> exceptionally(Function<Throwable, ? extends T> fn);
 public void exceptionally() {
     String result = CompletableFuture.supplyAsync(() -> {
@@ -1773,9 +1819,10 @@ public void exceptionally() {
     }).join();
     System.out.println(result);
 }
+```
 
-
-whenComplete 当运行完成时，若有异常则改变返回值，否则返回原值
+#### whenComplete 当运行完成时，若有异常则改变返回值，否则返回原值
+```
 public CompletionStage<T> whenComplete(BiConsumer<? super T, ? super Throwable> action);
 public CompletionStage<T> whenCompleteAsync(BiConsumer<? super T, ? super Throwable> action);
 public CompletionStage<T> whenCompleteAsync(BiConsumer<? super T, ? super Throwable> action,Executor executor);
@@ -1800,7 +1847,7 @@ public void whenComplete() {
     }).join();
     System.out.println(result);
 }
-
+```
 
 null
 java.lang.RuntimeException: 测试一下异常情况
@@ -1808,7 +1855,8 @@ java.lang.RuntimeException: 测试一下异常情况
 hello world
 这里也可以看出，如果使用了exceptionally，就会对最终的结果产生影响，它无法影响如果没有异常时返回的正确的值，这也就引出下面我们要介绍的handle。
 
-handle 当运行完成时，无论有无异常均可转换
+#### handle 当运行完成时，无论有无异常均可转换
+```
 public <U> CompletionStage<U> handle(BiFunction<? super T, Throwable, ? extends U> fn);
 public <U> CompletionStage<U> handleAsync(BiFunction<? super T, Throwable, ? extends U> fn);
 public <U> CompletionStage<U> handleAsync(BiFunction<? super T, Throwable, ? extends U> fn,Executor executor);
@@ -1833,9 +1881,10 @@ public void handle() {
     }).join();
     System.out.println(result);
 }
+```
 
 hello world
-
+```
 public void handle() {
     String result = CompletableFuture.supplyAsync(() -> {
         try {
@@ -1852,30 +1901,35 @@ public void handle() {
     }).join();
     System.out.println(result);
 }
-
+```
 s1
 
 
-allOf
+#### allOf
 allOf工厂方法接收一个由CompletableFuture构成的数组，数组中的所有CompletableFuture对象执行完成之后，它返回一个CompletableFuture<Void>对象。这意味着，如果你需要等待最初Stream中的所有CompletableFuture对象执行完毕，对allOf方法返回的CompletableFuture执行join操作是个不错的注意。
-anyOf
+#### anyOf
 只要CompletableFuture对象数组中有一个执行完毕，便不再等待。
 
+## ForkJoin
 
-ForkJoin
 双端队列LinkedBlockingDeque适用于另一种相关模式，即工作密取（work stealing）。在生产者——消费者设计中，所有消费者有一个共享的工作队列，而在工作密取设计中，每个消费者都有各自的双端队列。如果一个消费者完成了自己双端队列中的全部工作，那么它可以从其他消费者双端队列头部秘密地获取工作。密取工作模式比传统的生产者——消费者模式具有更高的可伸缩性，这是因为工作者线程不会在单个共享的任务队列上发生竞争。在大多数时候，它们都只是访问自己的双端队列，从而极大地减少了竞争。当工作者线程需要访问另一个队列时，它会从队列的头部而不是从尾部获取工作，因此进一步降低了队列上的竞争程度。
-第一步分割任务。首先我们需要有一个fork类来把大任务分割成子任务，有可能子任务还是很大，所以还需要不停的分割，直到分割出的子任务足够小。
-第二步执行任务并合并结果。分割的子任务分别放在双端队列里，然后几个启动线程分别从双端队列里获取任务执行。子任务执行完的结果都统一放在一个队列里，启动一个线程从队列里拿数据，然后合并这些数据。
+![图片12.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m418h9wxj30s20fedhj.jpg)
+![图片13.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m7q2pz79j30sa0hudiq.jpg)
+
+- 第一步分割任务。首先我们需要有一个fork类来把大任务分割成子任务，有可能子任务还是很大，所以还需要不停的分割，直到分割出的子任务足够小。
+- 第二步执行任务并合并结果。分割的子任务分别放在双端队列里，然后几个启动线程分别从双端队列里获取任务执行。子任务执行完的结果都统一放在一个队列里，启动一个线程从队列里拿数据，然后合并这些数据。
+
 Fork/Join使用两个类来完成以上两件事情：
-ForkJoinTask：我们要使用ForkJoin框架，必须首先创建一个ForkJoin任务。它提供在任务中执行fork()和join()操作的机制，通常情况下我们不需要直接继承ForkJoinTask类，而只需要继承它的子类，Fork/Join框架提供了以下两个子类：
-oRecursiveAction：用于没有返回结果的任务。
-oRecursiveTask ：用于有返回结果的任务。
-ForkJoinPool ：ForkJoinTask需要通过ForkJoinPool来执行，任务分割出的子任务会添加到当前工作线程所维护的双端队列中，进入队列的头部。当一个工作线程的队列里暂时没有任务时，它会随机从其他工作线程的队列的尾部获取一个任务。
+- ForkJoinTask：我们要使用ForkJoin框架，必须首先创建一个ForkJoin任务。它提供在任务中执行fork()和join()操作的机制，通常情况下我们不需要直接继承- ForkJoinTask类，而只需要继承它的子类，Fork/Join框架提供了以下两个子类：
+    - oRecursiveAction：用于没有返回结果的任务。
+    - oRecursiveTask ：用于有返回结果的任务。
+- ForkJoinPool ：ForkJoinTask需要通过ForkJoinPool来执行，任务分割出的子任务会添加到当前工作线程所维护的双端队列中，进入队列的头部。当一个工作线程的队列里暂时没有任务时，它会随机从其他工作线程的队列的尾部获取一个任务。
 
 threshold 临界值
 
 RecursiveTask有两个方法：fork和join
 fork是执行子任务，join是取得子任务的结果，用于合并
+```
 public class TestForkJoin {
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		ForkJoinPool pool = new ForkJoinPool();
@@ -1918,22 +1972,19 @@ class ForkJoinCalculator extends RecursiveTask<Long> {
 		}
 	}
 } 
-原理浅析
-1. 每个Worker线程都维护一个任务队列，即ForkJoinWorkerThread中的任务队列。
+```
 
-2. 任务队列是双向队列，这样可以同时实现LIFO和FIFO。
+### 原理浅析
+- 1. 每个Worker线程都维护一个任务队列，即ForkJoinWorkerThread中的任务队列。
+- . 任务队列是双向队列，这样可以同时实现LIFO和FIFO。
+- . 子任务会被加入到原先任务所在Worker线程的任务队列。
+- 4. Worker线程用LIFO的方法取出任务，也就后进队列的任务先取出来（子任务总是后加入队列，但是需要先执行）。
+- 5. Worker线程的任务队列为空，会随机从其他的线程的任务队列中拿走一个任务执行（所谓偷任务：steal work，FIFO的方式）。
+- 6. 如果一个Worker线程遇到了join操作，而这时候正在处理其他任务，会等到这个任务结束。否则直接返回。
+- 7. 如果一个Worker线程偷任务失败，它会用yield或者sleep之类的方法休息一会儿，再尝试偷任务（如果所有线程都是空闲状态，即没有任务运行，那么该线程也会进入阻塞状态等待新任务的到来）。
 
-3. 子任务会被加入到原先任务所在Worker线程的任务队列。
+### 与MapReduce的区别
 
-4. Worker线程用LIFO的方法取出任务，也就后进队列的任务先取出来（子任务总是后加入队列，但是需要先执行）。
-
-5. Worker线程的任务队列为空，会随机从其他的线程的任务队列中拿走一个任务执行（所谓偷任务：steal work，FIFO的方式）。
-
-6. 如果一个Worker线程遇到了join操作，而这时候正在处理其他任务，会等到这个任务结束。否则直接返回。
-
-7. 如果一个Worker线程偷任务失败，它会用yield或者sleep之类的方法休息一会儿，再尝试偷任务（如果所有线程都是空闲状态，即没有任务运行，那么该线程也会进入阻塞状态等待新任务的到来）。
-
-与MapReduce的区别
 MapReduce是把大数据集切分成小数据集，并行分布计算后再合并。
 
 ForkJoin是将一个问题递归分解成子问题，再将子问题并行运算后合并结果。
@@ -1941,12 +1992,10 @@ ForkJoin是将一个问题递归分解成子问题，再将子问题并行运算
 二者共同点：都是用于执行并行任务的。基本思想都是把问题分解为一个个子问题分别计算，再合并结果。应该说并行计算都是这种思想，彼此独立的或可分解的。从名字上看Fork和Map都有切分的意思，Join和Reduce都有合并的意思，比较类似。
 
 区别：
+- 1）环境差异，分布式 vs 单机多核：ForkJoin设计初衷针对单机多核（处理器数量很多的情况）。MapReduce一开始就明确是针对很多机器组成的集群环境的。也就是说一个是想充分利用多处理器，而另一个是想充分利用很多机器做分布式计算。这是两种不同的的应用场景，有很多差异，因此在细的编程模式方面有很多不同。
+- 2）编程差异：MapReduce一般是：做较大粒度的切分，一开始就先切分好任务然后再执行，并且彼此间在最后合并之前不需要通信。这样可伸缩性更好，适合解决巨大的问题，但限制也更多。ForkJoin可以是较小粒度的切分，任务自己知道该如何切分自己，递归地切分到一组合适大小的子任务来执行，因为是一个JVM内，所以彼此间通信是很容易的，更像是传统编程方式。
 
-1）环境差异，分布式 vs 单机多核：ForkJoin设计初衷针对单机多核（处理器数量很多的情况）。MapReduce一开始就明确是针对很多机器组成的集群环境的。也就是说一个是想充分利用多处理器，而另一个是想充分利用很多机器做分布式计算。这是两种不同的的应用场景，有很多差异，因此在细的编程模式方面有很多不同。
-
-2）编程差异：MapReduce一般是：做较大粒度的切分，一开始就先切分好任务然后再执行，并且彼此间在最后合并之前不需要通信。这样可伸缩性更好，适合解决巨大的问题，但限制也更多。ForkJoin可以是较小粒度的切分，任务自己知道该如何切分自己，递归地切分到一组合适大小的子任务来执行，因为是一个JVM内，所以彼此间通信是很容易的，更像是传统编程方式。
-
-线程池使用
+# 线程池使用
 引入原因
 1）任务处理过程从主线程中分离出来，使得主循环能够更快地重新等待下一个到来的连接，使得任务在完成前面的请求之前可以接受新的请求，从而提高响应性。
 2）任务可以并行处理，从而能同时服务多个请求。如果有多个处理器，或者任务由于某种原因被阻塞，程序的吞吐量将得到提高。
