@@ -1,7 +1,4 @@
-  表头  | 表头 
-  ------------- | ------------- 
- 单元格内容  | 单元格内容 
- 单元格内容l  | 单元格内容 
+
 # 一. 并发框架
 ## Doug Lea
 如果IT的历史，是以人为主体串接起来的话，那么肯定少不了Doug Lea。这个鼻梁挂着眼镜，留着德王威廉二世的胡子，脸上永远挂着谦逊腼腆笑容，服务于纽约州立大学Oswego分校计算机科学系的老大爷。
@@ -822,19 +819,12 @@ synchronized用的锁放在java对象头里。
 有两种情况：
 数组对象，虚拟机使用3个字宽存储对象头。
 非数组对象，则使用2个字宽来存储对象头。32位虚拟机中，1个字宽等于4字节，即32字节。
----
-title: MySQL优化看这一篇就够了
-date: 2018-12-25 11:04:03
-updated_at:
-comments: true
-photos: "http://zanwenblog.oss-cn-beijing.aliyuncs.com/18-12-29/51481063.jpg"
-categories: 数据库
-tags: MySQL
----
-长度	内容	说明
-32/64bit	mark word	存储对象的hashCode或者锁信息
-32/64bit	Class metadata address	存储对象描述数据的指针
-32/64bit	Array length	数组的长度
+  长度  | 内容  |说明
+  ------------- | -------------  |
+32/64bit | mark word  | 存储对象的hashCode或者锁信息
+32/64bit  | Class metadata address  |  存储对象描述数据的指针
+32/64bit  | Array length |  数组的长度
+
 Mark Word 的存储结构：
 
 锁的分类
