@@ -2420,35 +2420,47 @@ public class CompletionServiceTest {
 }
 ```
 
-J.U.C 源码解析
+# J.U.C 源码解析
 实现整个并发体系的真正底层是CPU提供的lock前缀+cmpxchg指令和POSIX的同步原语（mutex&condition）
+
 synchronized和wait&notify基于JVM的monitor，monitor底层又是基于POSIX同步原语。
+
 volatile基于CPU的lock前缀指令实现内存屏障。
+
 而J.U.C是基于LockSupport，底层基于POSIX同步原语。
-AbstractQueuedSynchronizer（AQS）
+
+## AbstractQueuedSynchronizer（AQS）
+
 在ReentrantLock和Semaphore这两个接口之间存在许多共同点，这两个类都可以用作一个阀门，即每次只允许一定数量的线程通过，并当线程到达阀门时，可以通过（在调用lock或acquire时成功返回），也可以等待（在调用lock或acquire时阻塞），还可以取消（在调用tryLock或tryAcquire时返回假，表示在指定的时间内锁是不可用的或无法得到许可）。
+
 可以通过锁来实现计数信号量。
+
 事实上，它们在实现时都使用了一个共同的基类，即AbstractQueuedSynchronizer（AQS），这个类也是其他许多同步类的基类。AQS是一个用于构建锁和同步器的框架，许多同步器都可以通过AQS很容易并且高效地构造出来。不仅ReentrantLock和Semaphore，还包括CountDownLatch、ReentrantReadWriteLock、SynchronousQueue和FutureTask，都是基于AQS构造的。
+
 在基于AQS构建的同步器中，只可能在一个时刻发生阻塞，从而降低上下文切换的开销，并提高吞吐量。在设计AQS时充分考虑了可伸缩性，因此java.util.concurrent中所有基于AQS构建的同步器都能获得这个优势。
+
 在基于AQS构建的同步器类中，最基本的操作包括各种形式的获取操作和释放操作。获取操作是一种依赖状态的操作，并且通常会阻塞。当使用锁或信号量时，获取操作的含义就很直观，即获取的是锁或许可，并且调用者可能会一直等待直到同步器类处于可被获取的状态。
 
 AQS负责管理同步器类中的状态，它管理了一个整数类型的状态信息，可以通过getState、setState以及compareAndSetState等protected类型方法来进行操作。这个整数可以用于表示任意状态。
-
+![图片24.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebzddvwj30s60dl0tl.jpg)
 
 它使用了一个int成员变量表示同步状态，通过内置的FIFO队列来完成资源获取线程的排队工作。
+
 子类通过继承AQS并实现它的抽象方法来管理同步状态，修改同步状态依赖于AQS的getState、setState、compareAndSetState来进行操作，它们能够保证状态的改变是安全的。
+
 子类推荐被定义为自定义同步组件的静态内部类，AQS自身没有实现任何同步接口，它仅仅是定义了若干同步状态获取和释放的方法来供自定义同步组件使用。AQS既可以支持独占式地获取同步状态，也可以支持共享式地获取同步状态。
 
-AQS的接口
+### AQS的接口
 AQS的设计是基于模板方法模式的，使用者需要继承同步器并重写指定的方法，随后将AQS组合在自定义同步组件的实现中，并调用AQS提供的模板方法，而这些模板方法将会调用使用者重写的方法。
 
 同步器可重写的方法：
-
+![图片25.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebzcx0oj30pt0c6gna.jpg)
 
 同步器提供的模板方法：
+![图片26.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebzdomoj30pp0haq5t.jpg)
 
-
-AQS使用实例（互斥锁，tryAcquire只需一次CAS）
+### AQS使用实例（互斥锁，tryAcquire只需一次CAS）
+```
 public class Mutex implements Lock {
     private final Sync sync = new Sync();
 
@@ -2512,9 +2524,14 @@ public class Mutex implements Lock {
         }
     }
 }
-AQS实现
+```
+
+### AQS实现
+
 主要工作基于CLH队列，voliate关键字修饰的状态state，线程去修改状态成功了就是获取成功，失败了就进队列等待，等待唤醒。在等待唤醒的时候，很多时候会使用自旋（while（!cas()））的方式，不停的尝试获取锁，直到被其他线程获取成功。
-AQS#state getState setState
+
+#### AQS#state getState setState
+```
 /**
  * The synchronization state.
  */
@@ -2537,11 +2554,16 @@ protected final int getState() {
 protected final void setState(int newState) {
     state = newState;
 }
+```
 
-同步队列
+#### 同步队列
+
 AQS依赖内部的CLH同步队列（一个FIFO双向队列）来完成同步状态的管理。当前线程获取同步状态失败时，AQS会将当前线程以及等待状态等信息构造为一个Node并将其加入同步队列，并阻塞当前线程。当同步状态释放时，会把后继节点线程唤醒，使其再次尝试获取同步状态。后继节点将会在获取同步状态成功时将自己设置为头节点。
-AQS#Node
 
+#### AQS#Node
+
+![图片27.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebzcgvrj30pu0dsac7.jpg)
+```
 static final class Node {
     /** Marker to indicate a node is waiting in shared mode */
     static final Node SHARED = new Node();
@@ -2677,31 +2699,38 @@ static final class Node {
         this.thread = thread;
     }
 }
+```
+![图片28.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebzadvcj30pu09l0th.jpg)
 
+#### 独占式同步状态
 
-
-独占式同步状态
 在获取同步状态时，AQS调用tryAcquire获取同步状态。AQS维护一个同步队列，获取同步状态失败的线程都会被加入到队列中并在队列进行自旋（等待）；移出队列的条件是前驱节点是头结点且成功获取了同步状态；
+
 在释放同步状态时，AQS调用tryRelease释放同步状态，然后唤醒头节点的后继节点，使其尝试获取同步状态。
-AQS#acquire
+
+##### AQS#acquire
+
 acquire(int)可以获取同步状态，对中断不敏感。
 
-1）调用自定义同步器实现的tryAcquire
-2）如果成功，那么结束
-3）如果失败，那么调用addWaiter加入同步队列尾部，并调用acquireQueued获取同步状态（前提是前驱节点为head）
-3.1）如果获取到了，那么将自己设置为头节点，返回
-3,2）如果前驱节点不是head或者没有获取到，那么判断前驱节点状态是否为SIGNAL，
- 	3.2.1) 如果是，那么阻塞当前线程，阻塞解除后仍自旋获取同步状态
-	3.2.2) 如果不是，那么删除状态为CANCELLED的前驱节点，将前驱节点状态设置为SIGNAL，继续自旋尝试获取同步状态。 
+- 1）调用自定义同步器实现的tryAcquire
+- 2）如果成功，那么结束
+- 3）如果失败，那么调用addWaiter加入同步队列尾部，并调用acquireQueued获取同步状态（前提是前驱节点为head）
+    - 3.1）如果获取到了，那么将自己设置为头节点，返回
+    - 3,2）如果前驱节点不是head或者没有获取到，那么判断前驱节点状态是否为SIGNAL，
+    - 3.2.1) 如果是，那么阻塞当前线程，阻塞解除后仍自旋获取同步状态
+    - 3.2.2) 如果不是，那么删除状态为CANCELLED的前驱节点，将前驱节点状态设置为SIGNAL，继续自旋尝试获取同步状态。 
+```
 public final void acquire(int arg) {
     if (!tryAcquire(arg) &&
         acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
         selfInterrupt();
 }
-addWaiter（新Node添加到同步队列尾部，初始状态下head是一个空节点）
+```
+
+###### addWaiter（新Node添加到同步队列尾部，初始状态下head是一个空节点）
+![图片29.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebza85hj30m30ar3z3.jpg)
 获取同步状态失败的线程会被构造成Node加入到同步队列尾部，这个过程必须是线程安全的，AQS基于CAS来设置同步队列的尾节点compareAndSetTail。
-
-
+```
 private Node addWaiter(Node mode) {
     Node node = new Node(Thread.currentThread(), mode);
     // Try the fast path of enq; backup to full enq on failure
@@ -2716,10 +2745,14 @@ private Node addWaiter(Node mode) {
     enq(node);
     return node;
 }
+```
+
 可能tail为null，或者tail不为null，但CAS添加node至尾部失败，此时会enq
 
 如果tail为null，则设置head和tail都指向一个空节点
+
 然后循环CAS添加node至尾部，直至成功。
+```
 private Node enq(final Node node) {
     for (;;) {
         Node t = tail;
@@ -2735,12 +2768,15 @@ private Node enq(final Node node) {
         }
     }
 }
-acquireQueued
+````
+###### acquireQueued
+![图片30.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebz9h50j30pi07qjru.jpg)
 
-设置首节点是由获取同步状态成功的线程来完成的，因为只有一个线程能够成功获取同步状态，因此设置头节点的方法并不需要CAS的包装。
+- 设置首节点是由获取同步状态成功的线程来完成的，因为只有一个线程能够成功获取同步状态，因此设置头节点的方法并不需要CAS的包装。
+- 如果自己是第二个结点，那么尝试获取同步状态，如果成功，那么将自己设置为头节点，并返回。
+- 如果自己不是第二个结点或者CAS获取失败，那么判断是否应该阻塞，如果应该，那么阻塞，否则自旋重新尝试获取同步状态。
 
-如果自己是第二个结点，那么尝试获取同步状态，如果成功，那么将自己设置为头节点，并返回。
-如果自己不是第二个结点或者CAS获取失败，那么判断是否应该阻塞，如果应该，那么阻塞，否则自旋重新尝试获取同步状态。
+````
 final boolean acquireQueued(final Node node, int arg) {
     boolean failed = true;
     try {
@@ -2776,12 +2812,15 @@ private void setHead(Node node) {
     node.thread = null;
     node.prev = null;
 }
+```
 
-shouldParkAfterFailedAcquire
-1）如果前一个节点状态是SIGNAL，那么表示已经设置了前驱节点在获取到同步状态时会唤醒自己，就可以放心的去阻塞了。
-2）否则会检查前一个节点状态是否是Cancelled
-2.1）如果是，那么就删除前一个节点，直至状态不是Cancelled。
-2.2）如果不是，那么将其状态设置为SIGNAL。
+###### shouldParkAfterFailedAcquire
+
+- 1）如果前一个节点状态是SIGNAL，那么表示已经设置了前驱节点在获取到同步状态时会唤醒自己，就可以放心的去阻塞了。
+- 2）否则会检查前一个节点状态是否是Cancelled
+- 2.1）如果是，那么就删除前一个节点，直至状态不是Cancelled。
+- 2.2）如果不是，那么将其状态设置为SIGNAL。
+```
 /**
  * Checks and updates status for a node that failed to acquire.
  * Returns true if thread should block. This is the main signal
@@ -2818,20 +2857,28 @@ private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
     }
     return false;
 }
-parkAndCheckInterrupt
+```
+###### parkAndCheckInterrupt
+
+```
 private final boolean parkAndCheckInterrupt() {
     LockSupport.park(this);
     return Thread.interrupted();
 }
+```
+
 为什么只有前驱节点是头节点才能尝试获取同步状态？
-1）头节点是成功获取到同步状态的节点，头节点的线程释放了同步状态之后，将会唤醒其后继节点，后继节点的线程被唤醒后需要检查自己的前驱节点是否是头结点
-2）维护同步队列的FIFO原则。
+- 1）头节点是成功获取到同步状态的节点，头节点的线程释放了同步状态之后，将会唤醒其后继节点，后继节点的线程被唤醒后需要检查自己的前驱节点是否是头结点
+- 2）维护同步队列的FIFO原则。
+
+![图片31.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebzay7lj30pm0gq40o.jpg)
 
 
+##### AQS#release
 
-
-AQS#release
 在释放同步状态之后，会唤醒其后继节点，使后继节点继续尝试获取同步状态。
+
+```
 public final boolean release(int arg) {
     if (tryRelease(arg)) {
         Node h = head;
@@ -2841,8 +2888,10 @@ public final boolean release(int arg) {
     }
     return false;
 }
+``` 
 
-unparkSuccessor
+######  unparkSuccessor
+```
 private void unparkSuccessor(Node node) {
     /*
      * If status is negative (i.e., possibly needing signal) try
@@ -2869,31 +2918,42 @@ private void unparkSuccessor(Node node) {
     if (s != null)
         LockSupport.unpark(s.thread);
 }
+```
 
-共享式同步状态
+#### 共享式同步状态
+
 共享式获取与独占式获取最主要的区别在于同一时刻能否有多个线程同时获取到同步状态。
+![图片32.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebz74cbj30kq0d3gm8.jpg)
 
-左半部分：共享式访问资源时，其他共享式的访问均被允许，而独占式访问被阻塞
-右半部分：独占式访问资源时，同一时刻其他访问均被阻塞。
+- 左半部分：共享式访问资源时，其他共享式的访问均被允许，而独占式访问被阻塞
+- 右半部分：独占式访问资源时，同一时刻其他访问均被阻塞。
 
 
-AQS#acquireShared
+##### AQS#acquireShared
+
 AQS会调用tryAcquireShared方法尝试获取同步状态，该方法返回值为int，当返回值大于等于0时，表示能够获取到同步状态。
+
 如果返回值等于0表示当前线程获取共享锁成功，但它后续的线程是无法继续获取的，也就是不需要把它后面等待的节点唤醒。如果返回值大于0，表示当前线程获取共享锁成功且它后续等待的节点也有可能继续获取共享锁成功，也就是说此时需要把后续节点唤醒让它们去尝试获取共享锁。
 
-1）调用自定义同步器实现的tryAcquireShared
-2）如果成功，那么结束
-3）如果失败，那么调用addWaiter加入SHARED节点至同步队列尾部，并调用再次尝试获取同步状态（前提是前驱节点为head）
-3.1）如果获取到了，那么将自己设置为头节点，并向后唤醒共享节点（如果还有剩余acquire），返回
-3.2） 如果前驱节点不是head或者没有获取到，那么判断前驱节点状态是否为SIGNAL
- 	3.2.1) 如果是，那么阻塞当前线程，阻塞解除后仍自旋获取同步状态
-	3.2.2) 如果不是，那么删除状态为CANCELLED的前驱节点，将前驱节点状态设置为SIGNAL，继续自旋尝试获取同步状态。
+- 1）调用自定义同步器实现的tryAcquireShared
+- 2）如果成功，那么结束
+- 3）如果失败，那么调用addWaiter加入SHARED节点至同步队列尾部，并调用再次尝试获取同步状态（前提是前驱节点为head）
+- 3.1）如果获取到了，那么将自己设置为头节点，并向后唤醒共享节点（如果还有剩余acquire），返回
+- 3.2） 如果前驱节点不是head或者没有获取到，那么判断前驱节点状态是否为SIGNAL
+    - 3.2.1) 如果是，那么阻塞当前线程，阻塞解除后仍自旋获取同步状态
+    - 3.2.2) 如果不是，那么删除状态为CANCELLED的前驱节点，将前驱节点状态设置为SIGNAL，继续自旋尝试获取同步状态。
+
+```
 public final void acquireShared(int arg) {
     if (tryAcquireShared(arg) < 0)
         doAcquireShared(arg);
 }
-doAcquiredShared
+```
+
+##### doAcquiredShared
+
 构造一个当前线程对应的共享节点，如果前驱节点是head并且尝试获取同步状态成功，那么将当前节点设置为head
+```
 private void doAcquireShared(int arg) {
     final Node node = addWaiter(Node.SHARED);
     boolean failed = true;
@@ -2921,8 +2981,12 @@ private void doAcquireShared(int arg) {
             cancelAcquire(node);
     }
 }
-setHeadAndPropagate
+```
+
+##### setHeadAndPropagate
+
 如果获取了同步状态，仍有剩余的acquire，那么继续向后唤醒
+```
 /**
  * Sets head of queue, and checks if successor may be waiting
  * in shared mode, if so propagating if either propagate > 0 or
@@ -2959,8 +3023,10 @@ private void setHeadAndPropagate(Node node, long propagate) {
             doReleaseShared();
     }
 }
+```
 
-AQS#releaseShared
+#### AQS#releaseShared
+```
 public final boolean releaseShared(int arg) {
     if (tryReleaseShared(arg)) {
         doReleaseShared();
@@ -2968,7 +3034,10 @@ public final boolean releaseShared(int arg) {
     }
     return false;
 }
-doReleaseShared
+```
+
+##### doReleaseShared
+```
 private void doReleaseShared() {
     /*
      * Ensure that a release propagates, even if there are other
@@ -3002,12 +3071,14 @@ private void doReleaseShared() {
             break;
     }
 }
+````
 
 
+#### 独占式超时获取同步状态
 
-独占式超时获取同步状态
-AQS#tryAcquireNanos
+##### AQS#tryAcquireNanos
 
+```
 public final boolean tryAcquireNanos(int arg, long nanosTimeout)
         throws InterruptedException {
     if (Thread.interrupted())
@@ -3015,14 +3086,17 @@ public final boolean tryAcquireNanos(int arg, long nanosTimeout)
     return tryAcquire(arg) ||
         doAcquireNanos(arg, nanosTimeout);
 }
-该方法可以超时获取同步状态，即在指定上的时间段内获取同步状态，如果成功返回true，失败则返回false。
-对比另一个获取同步状态的方法acquireInterruptibly，该方法等待时如果被中断，那么会立即返回并抛出InterruptedException；而synchronized即使被中断也仅仅是设置中断标志位，并不会立即返回。
-而tryAcquireNanos不仅支持响应中断，还增加了超时获取的特性。
+```
 
-针对超时获取，主要需要计算出需要等待的时间间隔nanosTImeout，为了防止过早通知，nanosTimeout的计算公式为:nanosTimeout -= now – lastTime。now是当前唤醒时间，lastTime为上次唤醒时间。
-如果nanosTimeout大于0，则表示超时时间未到，需要继续等待nanosTimeout纳秒；反之已经超时。
-AQS#doAcquireNanos
+- 该方法可以超时获取同步状态，即在指定上的时间段内获取同步状态，如果成功返回true，失败则返回false。
+- 对比另一个获取同步状态的方法acquireInterruptibly，该方法等待时如果被中断，那么会立即返回并抛出InterruptedException；而synchronized即使被中断也仅仅是设置中断标志位，并不会立即返回。
+- 而tryAcquireNanos不仅支持响应中断，还增加了超时获取的特性。
+- 针对超时获取，主要需要计算出需要等待的时间间隔nanosTImeout，为了防止过早通知，nanosTimeout的计算公式为:nanosTimeout -= now – lastTime。now是当前唤醒时间，lastTime为上次唤醒时间。
+- 如果nanosTimeout大于0，则表示超时时间未到，需要继续等待nanosTimeout纳秒；反之已经超时。
 
+##### AQS#doAcquireNanos
+![图片33.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7mebz79chj30mw0p7wfx.jpg)
+```
 private boolean doAcquireNanos(int arg, long nanosTimeout)
         throws InterruptedException {
     if (nanosTimeout <= 0L)
@@ -3053,10 +3127,7 @@ private boolean doAcquireNanos(int arg, long nanosTimeout)
             cancelAcquire(node);
     }
 }
-
-
-
-
+````
 
 
 ReentrantLock
