@@ -2111,35 +2111,29 @@ public class QuoteTask implements Callable<TravelQuote> {
 - 7）TimeUnit（线程活动保持时间的单位）
 ### 使用注意
 
-1、只有当任务都是同类型并且相互独立时，线程池的性能才能达到最佳。如果将运行时间较长的与运行时间较短的任务混合在一起，那么除非线程池很大，否则将可能造成拥塞。如果提交的任务依赖于其他任务，那么除非线程池无限大，否则将可能造成死锁。幸运的是，在基于网络的典型服务器应用程序中——web服务器、邮件服务器、文件服务器等，它们的请求通常都是同类型的并且相互独立的。
-
-2、设置线程池的大小：
+- 1、只有当任务都是同类型并且相互独立时，线程池的性能才能达到最佳。如果将运行时间较长的与运行时间较短的任务混合在一起，那么除非线程池很大，否则将可能造成拥塞。如果提交的任务依赖于其他任务，那么除非线程池无限大，否则将可能造成死锁。幸运的是，在基于网络的典型服务器应用程序中——web服务器、邮件服务器、文件服务器等，它们的请求通常都是同类型的并且相互独立的。
+- 2、设置线程池的大小：
 基于Runtime.getRuntime().avialableprocessors() 进行动态计算
 对于计算密集型的任务，在N个处理器的系统上，当线程池为N+1时，通过能实现最优的利用率（缺页故障等暂停时额外的线程也能确保CPU时钟周期不被浪费）。
 对于包含IO操作或者其他阻塞操作的任务，由于线程并不会一直执行，因此线程池的规模应该更大，比如2*N。要正确地设置线程池的大小，你必须估算出任务的等待时间与计算时间的比值。线程等待时间所占比例越高，需要越多线程。线程CPU时间所占比例越高，需要越少线程。这种估算不需要很精确，而且可以通过一些分析或监控工具来获得。你还可以通过另一种方法来调节线程池的大小：在某个基准负载下，分别设置不同大小的线程池来运行应用程序，并观察CPU利用率。
 最佳线程数目 = （线程等待时间与线程计算时间之比 + 1）* CPU数目
-3、线程的创建与销毁
+- 3、线程的创建与销毁
 基本大小也就是线程池的目标大小，即在没有任务执行时线程池的大小，并且只有在工作队列满了的情况下才会创建超出这个数量的线程。线程池的最大大小表示可同时活动的线程数量的上限。如果某个线程的空闲时间超过了存活时间，那么将被标记为可回收的，并且当线程池的当前大小超过了基本大小时，这个线程将被终止。
-
-4、管理队列任务
+- 4、管理队列任务
 ThreadPoolExecutor允许提供一个BlockingQueue来保存等待执行的任务。基本的任务排队方法有3种：无界队列、有界队列和同步移交。
 一种稳妥的资源管理策略是使用有界队列，有界队列有助于避免资源耗尽的情况发生，但又带来了新的问题：当队列填满后，新的任务该怎么办？
-
-5、饱和策略
+- 5、饱和策略
 当有界队列被填满后，饱和策略开始发挥作用。ThreadPoolExecutor的饱和策略可以通过setRejectedExecutionHandler来修改。JDK提供了几种不同的RejectedExecutionHandler的实现，每种实现都包含有不同的饱和策略：AbortPolicy、CallerRunsPolicy、DiscardPolicy、DiscardOldestPolicy。
-
-1）中止策略是默认的饱和策略，该策略将抛出未检查的RejectedExecutionException。调用者可以捕获这个异常，然后根据需求编写自己的处理代码。
-2）当新提交的任务无法保存到队列中执行时，抛弃策略会悄悄抛弃该任务。
-3）抛弃最旧的策略则会抛弃下一个将被执行的任务，然后尝试重新提交下一个将被执行的任务（如果工作队列是一个优先级队列，那么抛弃最旧的将抛弃优先级最高的任务）
-
-4）调用者运行策略实现了一种调节机制，该策略既不会抛弃任务，也不会抛出异常，而是将某些任务回退给调用者，从而降低新任务的流量。它不会在线程池的某个线程中执行新提交的任务，而是在一个调用了execute的线程中执行该任务。为什么好？因为当服务器过载时，这种过载情况会逐渐向外蔓延开来——从线程池到工作队列到应用程序再到TCP层，最终达到客户端，导致服务器在高负载下实现一种平缓的性能降低。
-
-6、线程工厂
+    - 1）中止策略是默认的饱和策略，该策略将抛出未检查的RejectedExecutionException。调用者可以捕获这个异常，然后根据需求编写自己的处理代码。
+    - 2）当新提交的任务无法保存到队列中执行时，抛弃策略会悄悄抛弃该任务。
+    - 3）抛弃最旧的策略则会抛弃下一个将被执行的任务，然后尝试重新提交下一个将被执行的任务（如果工作队列是一个优先级队列，那么抛弃最旧的将抛弃优先级最高的任务）
+    - 4）调用者运行策略实现了一种调节机制，该策略既不会抛弃任务，也不会抛出异常，而是将某些任务回退给调用者，从而降低新任务的流量。它不会在线程池的某个线程中执行新提交的任务，而是在一个调用了execute的线程中执行该任务。为什么好？因为当服务器过载时，这种过载情况会逐渐向外蔓延开来——从线程池到工作队列到应用程序再到TCP层，最终达到客户端，导致服务器在高负载下实现一种平缓的性能降低。
+- 6、线程工厂
 在许多情况下都需要使用定制的线程工厂方法。例如，你希望为线程池中的线程指定一个UncaughtExceptionHandler，或者实例化一个定制的Thread类用于执行调试信息的记录，你还可能希望修改线程的优先级（虽然不提倡这样做），或者只是给线程取一个更有意义的名字，用来解释线程的转储信息和错误日志。
+- 7、在调用构造函数后再定制ThreadPoolExecutor
 
-7、在调用构造函数后再定制ThreadPoolExecutor
-
-扩展ThreadPoolExecutor
+### 扩展ThreadPoolExecutor
+```
 public class TimingThreadPool extends ThreadPoolExecutor {
     public TimingThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
@@ -2178,11 +2172,12 @@ public class TimingThreadPool extends ThreadPoolExecutor {
         }
     }
 }
-
-任务时限
+```
+### 任务时限
 Future的get方法可以限时，如果超时会抛出TimeOutException，那么此时可以通过cancel方法来取消任务。如果编写的任务是可取消的，那么可以提前中止它，以免消耗过多的资源。
 创建n个任务，将其提交到一个线程池，保留n个Future，并使用限时的get方法通过Future串行地获取每一个结果，这一切都很简单。但还有一个更简单的实现：invokeAll。
 将多个任务提交到一个ExecutorService并获得结果。invokeAll方法的参数是一组任务，并返回一组Future。这两个集合有着相同的结构。invokeAll按照任务集合中迭代器的顺序将所有的Future添加到返回的集合中，从而使调用者能将各个Future与其表示的Callable关联起来。当所有任务执行完毕时，或者调用线程被中断时，又或者超时，invokeAll将返回。当超时时，任何还未完成的任务都会取消。当invokeAll返回后，每个任务要么正常地完成，要么被取消，而客户端代码可以调用get或isCancelled来判断究竟是何种情况。
+```
 public class QuoteTask implements Callable<TravelQuote> {
     private final TravelCompany company;
     private final TravelInfo travelInfo;
@@ -2222,24 +2217,29 @@ public class QuoteTask implements Callable<TravelQuote> {
         return quotes;
     }
 }
+```
 
+### 任务关闭
 
-任务关闭
 线程有一个相应的所有者，即创建该线程的类，因此线程池是工作者线程的所有者，如果要中断这些线程，那么应该使用线程池。
 ExecutorService中提供了shutdown和shutdownNow方法。
 前者是正常关闭，后者是强行关闭。
-1）它们都会阻止新任务的提交
-2）正常关闭是停止空闲线程，正在执行的任务继续执行并完成所有未执行的任务
-3）强行关闭是停止所有（空闲+工作）线程，关闭当前正在执行的任务，然后返回所有尚未执行的任务。
+- 1）它们都会阻止新任务的提交
+- 2）正常关闭是停止空闲线程，正在执行的任务继续执行并完成所有未执行的任务
+- 3）强行关闭是停止所有（空闲+工作）线程，关闭当前正在执行的任务，然后返回所有尚未执行的任务。
 
 通常调用shutdown方法来关闭线程池，如果任务不一定要执行完，则可以调用
 shutdownNow方法。
 
 但是我们无法通过常规方法来找出哪些任务已经开始但尚未结束，这意味着我们无法在关闭过程中知道正在执行的任务的状态，除非任务本身会执行某种检查。要知道哪些任务还没有完成，你不仅需要知道哪些任务还没有开始，而且还需要知道当Executor关闭时哪些任务正在执行。
+
 --------------------------------
 处理非正常的线程终止（只对execute提交的任务有效，submit提交的话会在future.get时将受检异常直接抛出）
+
 要为线程池中的所有线程设置一个UncaughtExceptionHandler，需要为ThreadPoolExecutor的构造函数提供一个ThreadFactory。标准线程池允许当发生未捕获异常时结束线程，但由于使用了一个try-finally块来接收通知，因此当线程结束时，将有新的线程来代替它。如果没有提供捕获异常处理器或者其他的故障通知机制，那么任务会悄悄失败，从而导致很大的混乱。如果你希望在任务由于发生异常而失败时获得通知，并且执行一些特定于任务的恢复操作，那么可以将任务封装在能捕获异常的Runnable或Callable中，或者改写ThreadPoolExecutor的afterExecute方法。
+
 只有通过execute提交的任务，才能将它抛出的异常交给未捕获异常处理器。如果一个由submit提交的任务由于抛出了异常而结束，那么这个异常将被Future.get封装在ExecutionException中重新抛出。
+```
 public class QuoteTask implements Callable<TravelQuote> {
     private final TravelCompany company;
     private final TravelInfo travelInfo;
@@ -2279,19 +2279,22 @@ public class QuoteTask implements Callable<TravelQuote> {
         return quotes;
     }
 }
+```
 
 
+## ScheduledThreadPoolExecutor
 
-ScheduledThreadPoolExecutor
 它继承自ThreadPoolExecutor，主要用来在给定的延迟之后运行任务，或者定期执行任务。Timer是单个后台线程，而ScheduledThreadPoolExecutor可以在构造函数中指定多个对应的后台线程数。
+```
 public ScheduledThreadPoolExecutor(int corePoolSize,
                                    ThreadFactory threadFactory,
                                    RejectedExecutionHandler handler) {
     super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
           new DelayedWorkQueue(), threadFactory, handler);
 }
-
+```
 内部工作队列是DelayedWorkQueue，它是一个无界队列，maxPoolSize这个参数没有意义。
+```
 static class DelayedWorkQueue extends AbstractQueue<Runnable>
     implements BlockingQueue<Runnable> 
 
@@ -2317,68 +2320,87 @@ class ThreadPoolDemo2 implements Callable<Integer> {
       return sum;
    }
 }
+```
 
-
-Executors
+## Executors
 Executors是一个工厂类，可以创建3种类型的ThreadPoolExecutor和2种类型的ScheduledThreadPool。
+![图片21.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jr0gjdj315f0l6tf6.jpg)
 
-FixedThreadPool
+### FixedThreadPool
+
 创建固定线程数的FixedThreadPool，适用于负载比较重的服务器。
+```
 public static ExecutorService newFixedThreadPool(int nThreads) {
     return new ThreadPoolExecutor(nThreads, nThreads,
                                   0L, TimeUnit.MILLISECONDS,
                                   new LinkedBlockingQueue<Runnable>());
 }
+```
 corePoolSize和maxPoolSize都被设置为创建FixedThreadPoolExecutor时指定的参数nThreads。
-keepAliveTime为0表示多余的空闲线程将会被立即终止。
-使用无界队列LinkedBlockingQueue来作为线程池的工作队列，并且默认容量为Integer.MAX_VALUE。使用无界队列会带来以下影响：
-1）当线程池中的线程数达到corePoolSize后，新任务将在无界队列中等待，因此线程池中的线程数不会超过corePoolSize
-2）maximumPoolSize是一个无效的参数
-3）keepAliveTime是一个无效参数
-4）运行中的FixedThreadPool（未执行shutdown或shutdownNow）不会拒绝任务。
 
-SingleThreadExecutor
+keepAliveTime为0表示多余的空闲线程将会被立即终止。
+
+使用无界队列LinkedBlockingQueue来作为线程池的工作队列，并且默认容量为Integer.MAX_VALUE。使用无界队列会带来以下影响：
+- 1）当线程池中的线程数达到corePoolSize后，新任务将在无界队列中等待，因此线程池中的线程数不会超过corePoolSize
+- 2）maximumPoolSize是一个无效的参数
+- 3）keepAliveTime是一个无效参数
+- 4）运行中的FixedThreadPool（未执行shutdown或shutdownNow）不会拒绝任务。
+
+### SingleThreadExecutor
 适用于需要保证顺序地执行各个任务，并且在任意时间点不会有多个线程活动的应用场景。
+```
 public static ExecutorService newSingleThreadExecutor() {
     return new FinalizableDelegatedExecutorService
         (new ThreadPoolExecutor(1, 1,
                                 0L, TimeUnit.MILLISECONDS,
                                 new LinkedBlockingQueue<Runnable>()));
 }
+```
 它也是使用无界队列，corePoolSize和maxPoolSize都为1。
 
-CachedThreadPool
+### CachedThreadPool
 大小无界的线程池，适用于执行很多的短期异步任务的小程序，或者是负载较轻的服务器。
+```
 public static ExecutorService newCachedThreadPool() {
     return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                   60L, TimeUnit.SECONDS,
                                   new SynchronousQueue<Runnable>());
 }
+```
 使用没有缓冲区、只能存储一个元素的SynchronousQueue作为工作队列。
+
 maxPoolSize是无界的，如果主线程提交任务的速度高于maxPool中线程处理任务的速度时，CachedThreadPool会不断创建新线程。极端情况下，CachedThreadPool会因为创建过多线程而耗尽CPU和内存。
+![图片22.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jqzse0j30md0ff0tg.jpg)
 
 任务执行过程：
-1）首先执行SynchronousQueue#offer(Runnable) 。如果当前maxPool中有空闲线程正在执行SynchronousQueue#poll，那么主线程执行offer操作与空闲线程执行的poll操作配对成功，主线程把任务交给空闲线程执行；否则执行2）
-2）当初始maxPool为空，或者maxPool中没有空闲线程时，此时CachedThreadPool会创建一个新线程执行任务
-3）在2）中新创建的线程执行任务完毕后，会执行SynchronousQueue#poll，这个poll操作会让空闲线程最多在SynchronousQueue中等待60秒。如果60秒内主线程提交了一个新任务，那么这个空闲线程将执行主线程提交的新任务；否则，这个空闲线程将终止。
+- 1）首先执行SynchronousQueue#offer(Runnable) 。如果当前maxPool中有空闲线程正在执行SynchronousQueue#poll，那么主线程执行offer操作与空闲线程执行的poll操作配对成功，主线程把任务交给空闲线程执行；否则执行2）
+- 2）当初始maxPool为空，或者maxPool中没有空闲线程时，此时CachedThreadPool会创建一个新线程执行任务
+- 3）在2）中新创建的线程执行任务完毕后，会执行SynchronousQueue#poll，这个poll操作会让空闲线程最多在SynchronousQueue中等待60秒。如果60秒内主线程提交了一个新任务，那么这个空闲线程将执行主线程提交的新任务；否则，这个空闲线程将终止。
 
-ScheduledThreadPoolExecutor
+![图片23.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jqznlsj30mb0cq3z4.jpg)
+
+### ScheduledThreadPoolExecutor
+
 固定线程个数，适用于多个后台线程执行周期任务，同时为了满足资源管理的需求而需要限制后台线程的梳理的应用场景。
-SingleThreadScheduledExecutor
+
+### SingleThreadScheduledExecutor
+```
 public static ScheduledExecutorService newSingleThreadScheduledExecutor(ThreadFactory threadFactory) {
     return new DelegatedScheduledExecutorService
         (new ScheduledThreadPoolExecutor(1, threadFactory));
 }
-
+```
 适用于需要单个后台线程执行周期任务，同时需要保证顺序地执行各个任务的应用场景。
 
 
-CompletionService
+## CompletionService
+
 CompletionService将Executor和BlockingQueue的概念融合在一起，你可以将Callable任务提交给它来执行，然后使用类似于队列操作的take和poll等方法来获得已完成的结果，而这些结果会在完成时封装为Future。ExecutorCompletionService实现了CompletionService并将计算任务委托给一个Executor。
 
 ExecutorCompletionService的实现非常简单，在构造函数中创建一个BlockingQueue来保存计算完成的结果。当计算完成时，调用FutureTask的done方法。当提交某个任务时，该任务将首先包装为一个QueueingFuture，这是FutureTask的一个子类，然后再改写子类的done方法，并将结果放入BlockingQueue中。take和poll方法委托给了BlockingQueue，这些方法会在得出结果之前阻塞。
 
 多个ExecutorCompletionService可以共享一个Executor，因此可以创建一个对于特定计算私有，又能共享一个公共Executor的ExecutorCompletionService。
+```
 public class CompletionServiceTest {
     public void test() throws InterruptedException, ExecutionException {
         ExecutorService exec = Executors.newCachedThreadPool();
@@ -2396,7 +2418,7 @@ public class CompletionServiceTest {
         exec.shutdown();
     }
 }
-
+```
 
 J.U.C 源码解析
 实现整个并发体系的真正底层是CPU提供的lock前缀+cmpxchg指令和POSIX的同步原语（mutex&condition）
