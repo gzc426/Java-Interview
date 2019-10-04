@@ -894,31 +894,34 @@ Mark Word 的存储结构：
 
 
 ## 原子操作原理
+
 CAS操作的意思是比较并交换，它需要两个数值，一个旧值（期望操作前的值）和新值。操作之前比较两个旧值是否变化，如无变化才交换为新值。
-CPU如何实现原子操作
-1）在硬件层面，CPU依靠总线加锁和缓存锁定机制来实现原子操作。
 
-使用总线锁保证原子性。如果多个CPU同时对共享变量进行写操作（i++），通常无法得到期望的值。CPU使用总线锁来保证对共享变量写操作的原子性，当CPU在总线上输出LOCK信号时，其他CPU的请求将被阻塞住，于是该CPU可以独占共享内存。
+### CPU如何实现原子操作
 
-使用缓存锁保证原子性。频繁使用的内存地址的数据会缓存于CPU的cache中，那么原子操作只需在CPU内部执行即可，不需要锁住整个总线。缓存锁是指在内存中的数据如果被缓存于CPU的cache中，并且在LOCK操作期间被锁定，那么当它执行锁操作写回到内存时，CPU修改内部的内存地址，并允许它的缓存一致性来保证操作的原子性，因为缓存一致性机制会阻止同时修改由两个以上处理器 缓存的 内存区域数据。当其他CPU回写被锁定的cache行数据时候，会使cache行无效。
-Java如何实现原子操作
-2）Java使用了锁和循环CAS的方式来实现原子操作。
-使用循环CAS实现原子操作。JVM的CAS操作使用了CPU提供的CMPXCHG指令来实现，自旋式CAS操作的基本思路是循环进行CAS操作直到成功为止。1.5之后的并发包中提供了诸如AtomicBoolean, AtomicInteger等包装类来支持原子操作。CAS存在ABA，循环时间长开销大，以及只能保证一个共享变量的原子操作三个问题。
+- **1）在硬件层面，CPU依靠总线加锁和缓存锁定机制来实现原子操作。**
+    - 使用总线锁保证原子性。如果多个CPU同时对共享变量进行写操作（i++），通常无法得到期望的值。CPU使用总线锁来保证对共享变量写操作的原子性，当CPU在总线上输出LOCK信号时，其他CPU的请求将被阻塞住，于是该CPU可以独占共享内存。
+    - 使用缓存锁保证原子性。频繁使用的内存地址的数据会缓存于CPU的cache中，那么原子操作只需在CPU内部执行即可，不需要锁住整个总线。缓存锁是指在内存中的数据如果被缓存于CPU的cache中，并且在LOCK操作期间被锁定，那么当它执行锁操作写回到内存时，CPU修改内部的内存地址，并允许它的缓存一致性来保证操作的原子性，因为缓存一致性机制会阻止同时修改由两个以上处理器 缓存的 内存区域数据。当其他CPU回写被锁定的cache行数据时候，会使cache行无效。
 
-cmpxchg(void* ptr, int old, int new)，如果ptr和old的值一样，则把new写到ptr内存，否则返回ptr的值，整个操作是原子的。
+### Java如何实现原子操作
+- **2）Java使用了锁和循环CAS的方式来实现原子操作。**
+    - 使用循环CAS实现原子操作。JVM的CAS操作使用了CPU提供的CMPXCHG指令来实现，自旋式CAS操作的基本思路是循环进行CAS操作直到成功为止。1.5之后的并发包中提供了诸如AtomicBoolean, AtomicInteger等包装类来支持原子操作。CAS存在ABA，循环时间长开销大，以及只能保证一个共享变量的原子操作三个问题。
+    - cmpxchg(void* ptr, int old, int new)，如果ptr和old的值一样，则把new写到ptr内存，否则返回ptr的值，整个操作是原子的。
+    - 使用锁机制实现原子操作。锁机制保证了只有获得锁的线程才能给操作锁定的区域。JVM的内部实现了多种锁机制。除了偏向锁，其他锁的方式都使用了循环CAS，也就是当一个线程想进入同步块的时候，使用循环CAS方式来获取锁，退出时使用CAS来释放锁。
 
-使用锁机制实现原子操作。锁机制保证了只有获得锁的线程才能给操作锁定的区域。JVM的内部实现了多种锁机制。除了偏向锁，其他锁的方式都使用了循环CAS，也就是当一个线程想进入同步块的时候，使用循环CAS方式来获取锁，退出时使用CAS来释放锁。
+### CAS在OpenJDK中的实现
 
-CAS在OpenJDK中的实现
 以compareAndSwapInt为例：
+```
 UNSAFE_ENTRY(jboolean, Unsafe_CompareAndSwapInt(JNIEnv *env, jobject unsafe, jobject obj, jlong offset, jint e, jint x))
   UnsafeWrapper("Unsafe_CompareAndSwapInt");
   oop p = JNIHandles::resolve(obj);
   jint* addr = (jint *) index_oop_from_field_offset_long(p, offset);
   return (jint)( (x, addr, e)) == e;
 UNSAFE_END
-
+```
 linux下
+```
 inline jint     Atomic::cmpxchg    (jint     exchange_value, volatile jint*     dest, jint     compare_value) {
   int mp = os::is_MP();
   __asm__ volatile (LOCK_IF_MP(%4) "cmpxchgl %1,(%3)"
@@ -927,15 +930,15 @@ inline jint     Atomic::cmpxchg    (jint     exchange_value, volatile jint*     
                     : "cc", "memory");
   return exchange_value;
 }
-
+```
 程序会根据当前处理器的类型来决定是否为cmpxchg指令添加lock前缀。如果程序是在多处理器上运行，就为cmpchg指令加上lock前缀；如果是在单处理器上运行，就省略lock前缀。
 Intel对lock前缀的说明如下：
-1）确保对内存的读-改-写操作原子执行（基于总线锁或缓存锁）
-2）禁止该指令，与 之前 和 之后 的读写指令重排序
-3）把写缓冲区中的所有数据刷新到内存中。
+- 1）确保对内存的读-改-写操作原子执行（基于总线锁或缓存锁）
+- 2）禁止该指令，与 之前 和 之后 的读写指令重排序
+- 3）把写缓冲区中的所有数据刷新到内存中。
 
 
-同步容器
+# 同步容器
 同步容器类都是线程安全的，但在某些情况下可能需要额外的客户端加锁来保护复合操作。容器上常见的复合操作包括：迭代，跳跃，以及条件运算。
 ConcurrentHashMap
 它们提供的迭代器不会抛出ConcurrentModificationException，因此不需要再迭代过程中对容器加锁。ConcurrentHasMap返回的迭代器具有弱一致性，而并非及时失败。弱一致性的迭代器可以容忍并发的修改，当修改迭代器会遍历已有的元素，并可以在迭代器被构造后将修改操作反映给容器。
