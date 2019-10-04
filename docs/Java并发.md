@@ -1996,44 +1996,45 @@ ForkJoin是将一个问题递归分解成子问题，再将子问题并行运算
 - 2）编程差异：MapReduce一般是：做较大粒度的切分，一开始就先切分好任务然后再执行，并且彼此间在最后合并之前不需要通信。这样可伸缩性更好，适合解决巨大的问题，但限制也更多。ForkJoin可以是较小粒度的切分，任务自己知道该如何切分自己，递归地切分到一组合适大小的子任务来执行，因为是一个JVM内，所以彼此间通信是很容易的，更像是传统编程方式。
 
 # 线程池使用
-引入原因
-1）任务处理过程从主线程中分离出来，使得主循环能够更快地重新等待下一个到来的连接，使得任务在完成前面的请求之前可以接受新的请求，从而提高响应性。
-2）任务可以并行处理，从而能同时服务多个请求。如果有多个处理器，或者任务由于某种原因被阻塞，程序的吞吐量将得到提高。
-3）任务处理代码必须是线程安全的，因为当有多个任务时会并发地调用这段代码。
 
-无限制创建线程的不足：
-1）线程生命周期的开销非常高
-2）资源消耗
-3）稳定性
+## 引入原因
+- 1）任务处理过程从主线程中分离出来，使得主循环能够更快地重新等待下一个到来的连接，使得任务在完成前面的请求之前可以接受新的请求，从而提高响应性。
+- 2）任务可以并行处理，从而能同时服务多个请求。如果有多个处理器，或者任务由于某种原因被阻塞，程序的吞吐量将得到提高。
+- 3）任务处理代码必须是线程安全的，因为当有多个任务时会并发地调用这段代码。
+
+**无限制创建线程的不足：**
+- 1）线程生命周期的开销非常高
+ 2）资源消耗
+- 3）稳定性
 
 解决方式：线程池 Executor框架
 
 使用线程池的好处：
-1）降低资源消耗
-2）提高响应速度
-3）提高线程的可管理性
+- 1）降低资源消耗
+- 2）提高响应速度
+- 3）提高线程的可管理性
 
 
 
-Executor ExecutorService ScheduledExecutorService
+## Executor ExecutorService ScheduledExecutorService
 继承体系
+![图片14.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jr2x9bj30mq0jj0u3.jpg)
+![图片15.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jr4wnlj30wq0awta0.jpg)
+![图片16.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jr23h9j30lu0lhwfl.jpg)
 
+### ExecutorService
+![图片17.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jr1xfdj315g0jrgqq.jpg)
 
-
-
-
-
-ExecutorService
-
-
-ScheduledExecutorService
+### ScheduledExecutorService
+![图片18.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jr1a7cj318b09wtbj.jpg)
 
 返回值
 
-
+![图片19.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jr0e61j30ew095wf0.jpg)
 
 
 示例
+```
 public class QuoteTask implements Callable<TravelQuote> {
     private final TravelCompany company;
     private final TravelInfo travelInfo;
@@ -2073,19 +2074,20 @@ public class QuoteTask implements Callable<TravelQuote> {
         return quotes;
     }
 }
+```
 
 
-
-ThreadPoolExecutor
+## ThreadPoolExecutor
 创建线程池
+![图片20.jpg](http://ww1.sinaimg.cn/large/007s8HJUly1g7m9jr0v57j30w8029jrj.jpg)
 
 线程动态变化
-1.当线程池小于corePoolSize时，新提交任务将创建一个新线程执行任务，即使此时线程池中存在空闲线程。 
-2.当线程池达到corePoolSize时，新提交任务将被放入workQueue中，等待线程池中任务调度执行 
-3.当workQueue已满，且maximumPoolSize>corePoolSize时，新提交任务会创建新线程执行任务 
-4.当提交任务数超过maximumPoolSize时，新提交任务由RejectedExecutionHandler处理 
-5.当线程池中超过corePoolSize线程，空闲时间达到keepAliveTime时，关闭空闲线程 
-6.当设置allowCoreThreadTimeOut(true)时，线程池中corePoolSize线程空闲时间达到keepAliveTime也将关闭
+- 1.当线程池小于corePoolSize时，新提交任务将创建一个新线程执行任务，即使此时线程池中存在空闲线程。 
+- 2.当线程池达到corePoolSize时，新提交任务将被放入workQueue中，等待线程池中任务调度执行 
+- 3.当workQueue已满，且maximumPoolSize>corePoolSize时，新提交任务会创建新线程执行任务 
+- 4.当提交任务数超过maximumPoolSize时，新提交任务由RejectedExecutionHandler处理 
+- 5.当线程池中超过corePoolSize线程，空闲时间达到keepAliveTime时，关闭空闲线程 
+- 6.当设置allowCoreThreadTimeOut(true)时，线程池中corePoolSize线程空闲时间达到keepAliveTime也将关闭
 
 创建一个线程池时需要以下几个参数：
 1）corePoolSize（线程池的基本大小）：当提交一个任务到线程池时，线程池会创建一个线程来执行任务，即使其他空闲的基本线程能够执行新任务也会创建线程，等到需要执行的任务数大于线程池基本大小时就不再创建。如果调用线程池的prestartAllCoreThreads方法，线程池会提前创建并启动所有基本线程。
