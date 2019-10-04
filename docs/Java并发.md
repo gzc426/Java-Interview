@@ -818,10 +818,15 @@ synchronized用的锁放在java对象头里。
 有两种情况：
 数组对象，虚拟机使用3个字宽存储对象头。
 非数组对象，则使用2个字宽来存储对象头。32位虚拟机中，1个字宽等于4字节，即32字节。
-| 班级 | 男生 | 女生 |
-|-----|-----|------|
-| 一(7)班 | 30   | 25 |
-| 一(8)班 | 25   | 30 |
+---
+title: MySQL优化看这一篇就够了
+date: 2018-12-25 11:04:03
+updated_at:
+comments: true
+photos: "http://zanwenblog.oss-cn-beijing.aliyuncs.com/18-12-29/51481063.jpg"
+categories: 数据库
+tags: MySQL
+---
 长度	内容	说明
 32/64bit	mark word	存储对象的hashCode或者锁信息
 32/64bit	Class metadata address	存储对象描述数据的指针
