@@ -1,3 +1,8 @@
+- 本github最初的版本是一份word文档，目前只是把word刚刚搬上来了，但是有些图片、排版还没来得急整理，看起来可能还是有点困难
+- 所以可以先关注一下我的公众号，在我的公众号后台回复 **888** 获取这个github仓库的PDF版本，左侧有导航栏，方便大家阅读。
+
+![](http://ww1.sinaimg.cn/large/007s8HJUly1g0fkgcpy8cj30760760t7.jpg)
+
 # Java
 - Oracle JDK有部分源码是闭源的，如果确实需要可以查看OpenJDK的源码，可以在该网站获取。
 - http://grepcode.com/snapshot/repository.grepcode.com/java/root/jdk/openjdk/8u40-b25/
