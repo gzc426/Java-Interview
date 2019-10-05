@@ -1,9 +1,9 @@
-## Java
+# Java
 - Oracle JDK有部分源码是闭源的，如果确实需要可以查看OpenJDK的源码，可以在该网站获取。
 - http://grepcode.com/snapshot/repository.grepcode.com/java/root/jdk/openjdk/8u40-b25/
 - http://hg.openjdk.java.net/jdk8u/jdk8u/jdk/file/73d5bcd0585d/src
 - 上面这个还可以查看native方法。
-### JDK&JRE&JVM
+# 1.1 JDK&JRE&JVM
 - JDK（Java Development Kit)是针对Java开发员的产品，是整个Java的核心，包括了Java运行环境JRE、Java工具（编译、开发工具)和Java核心类库。
 - Java Runtime Environment（JRE)是运行JAVA程序所必须的环境的集合，包含JVM标准实现及Java核心类库。
 - JVM是Java Virtual Machine（Java虚拟机)的缩写，是整个java实现跨平台的最核心的部分，能够运行以Java语言写作的软件程序。
@@ -11,9 +11,9 @@
 - JDK包含JRE和Java编译、开发工具；
 - JRE包含JVM和Java核心类库；
 - 运行Java仅需要JRE；而开发Java需要JDK。
-### 跨平台
+# 1.2 跨平台
 - 字节码是在虚拟机上运行的，而不是编译器。换而言之，是因为JVM能跨平台安装，所以相应JAVA字节码便可以跟着在任何平台上运行。只要JVM自身的代码能在相应平台上运行，即JVM可行，则JAVA的程序员就可以不用考虑所写的程序要在哪里运行，反正都是在虚拟机上运行，然后变成相应平台的机器语言，而这个转变并不是程序员应该关心的。
-### 基础数据类型
+# 1.3 基础数据类型
 - 第一类：整型 byte short int long 
 - 第二类：浮点型 float double
 - 第三类：逻辑型 boolean(它只有两个值可取true false)
@@ -36,33 +36,33 @@
 
     - Java标准库实现的对char与String的序列化规定使用UTF-8作为外码。Java的Class文件中的字符串常量与符号名字也都规定用UTF-8编码。这大概是当时设计者为了平衡运行时的时间效率（采用定长编码的UTF-16)与外部存储的空间效率（采用变长的UTF-8编码)而做的取舍。
 
-### 引用类型
+# 1.4 引用类型
 - 类、接口、数组都是引用类型
-#### 四种引用
+## 四种引用
 - 目的：避免对象长期占用内存，
 
-##### 强引用
+### 强引用
 - StringReference GC时不回收
 - 当内存空间不足，Java虚拟机宁愿抛出OutOfMemoryError错误，使程序异常终止，也不会靠随意回收具有强引用的对象来解决内存不足问题。
-##### 软引用
+### 软引用
 - SoftReference GC时如果JVM内存不足时会回收
 - 软引用可用来实现内存敏感的高速缓存。 软引用可以和一个引用队列（ReferenceQueue)联合使用，如果软引用所引用的对象被垃圾回收，Java虚拟机就会把这个软引用加入到与之关联的引用队列中。
-##### 弱引用
+### 弱引用
 - WeakReference GC时立即回收
 - 弱引用与软引用的区别在于：只具有弱引用的对象拥有更短暂的生命周期。
 - 弱引用可以和一个引用队列（ReferenceQueue)联合使用，如果弱引用所引用的对象被垃圾回收，Java虚拟机就会把这个弱引用加入到与之关联的引用队列中。
-##### 虚引用
+### 虚引用
 - PhantomReference 
 - 如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收。 虚引用主要用来跟踪对象被垃圾回收的活动。虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列（ReferenceQueue)联合使用。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之关联的引用队列中。程序可以通过判断引用队列中是否已经加入了虚引用，来了解被引用的对象是否将要被垃圾回收。程序如果发现某个虚引用已经被加入到引用队列，那么就可以在所引用的对象的内存被回收之前采取必要的行动。
 
 - 在Java集合中有一种特殊的Map类型：WeakHashMap， 在这种Map中存放了键对象的弱引用，当一个键对象被垃圾回收，那么相应的值对象的引用会从Map中删除。WeakHashMap能够节约存储空间，可用来缓存那些非必须存在的数据。
-#### 基础数据类型包装类
-##### 为什么需要
+## 基础数据类型包装类
+### 为什么需要
 - 由于基本数据类型不是对象，所以java并不是纯面向对象的语言，好处是效率较高（全部包装为对象效率较低)。
 - Java是一个面向对象的编程语言，基本类型并不具有对象的性质，为了让基本类型也具有对象的特征，就出现了包装类型（如我们在使用集合类型Collection时就一定要使用包装类型而非基本类型)，它相当于将基本类型“包装起来”，使得它具有了对象的性质，并且为其添加了属性和方法，丰富了基本类型的操作。
 - 
 
-##### 有哪些
+### 有哪些
  基本类型  	  包装器类型  
 boolean	Boolean
 char	Character
@@ -73,14 +73,14 @@ long	Long
 float	Float
 double	Double
 - Number是所有数字包装类的父类
-##### 自动装箱、自动拆箱（编译器行为)
+### 自动装箱、自动拆箱（编译器行为)
 - 自动装箱：可以将基础数据类型包装成对应的包装类
 - Integer i = 10000; // 编译器会改为new Integer(10000)
 - 自动拆箱：可以将包装类转为对应的基础数据类型
 - int i = new Integer(1000);//编译器会修改为   int i = new Integer(1000).intValue();
 
 - 自动拆箱时如果包装类是null，那么会抛出NPE
-##### Integer.valueOf
+### Integer.valueOf
 
 ```
 public static Integer valueOf(int i) {
@@ -95,15 +95,15 @@ public static Integer valueOf(int i) {
 - 所以在此访问内的Integer对象使用==和equals结果是一样的。
 - 如果Integer的值一致，且在此范围内，因为是同一个对象，所以==返回true；但此访问之外的对象==比较的是内存地址，值相同，也是返回false。
 
-### Object
+# 1.5 Object
 
-#### == 与 equals的区别
+## == 与 equals的区别
 - 如果两个引用类型变量使用==运算符，那么比较的是地址，它们分别指向的是否是同一地址的对象。结果一定是false，因为两个对象不可能存放在同一地址处。
 - 要求是两个对象都不是能空值，与空值比较返回false。
 - ==不能实现比较对象的值是否相同。
 - 所有对象都有equals方法，默认是Object类的equals，其结果与==一样。
 - 如果希望比较对象的值相同，必须重写equals方法。
-#### hashCode与equals的区别
+## hashCode与equals的区别
 - Object中的equals:
 
 ```
@@ -139,20 +139,20 @@ public native int hashCode();
     ((k = p.key) == key || (key != null && key.equals(k))))
     e = p;
 - 如果equals返回结果相同，则值一定相同，不再存入。
-#### 如果重写equals不重写hashCode会怎样
+## 如果重写equals不重写hashCode会怎样
 - 两个值不同的对象的hashCode一定不一样，那么执行equals，结果为true，HashSet或HashMap的键会放入值相同的对象。
-### String&StringBuffer&StringBuilder
+# 1.6 String&StringBuffer&StringBuilder
 - 都是final类，不允许继承；
 - String长度不可变，StringBuffer、StringBuilder长度可变；
 
-#### String
+## String
 
 ```
 public final class String
     implements java.io.Serializable, Comparable<String>, CharSequence {}
 ```
 
-##### equals&hashCode
+### equals&hashCode
 - String重写了Object的hashCode和equals。
 
 ```
@@ -179,7 +179,7 @@ public boolean equals(Object anObject) {
 }
 ```
 
-##### 添加功能
+### 添加功能
 - String是final类，不可被继承，也不可重写一个java.lang.String（类加载机制)。
 - 一般是使用StringUtils来增强String的功能。
 
@@ -191,7 +191,7 @@ public boolean equals(Object anObject) {
 - 但是类加载器ExtClassLoader在jre/lib/ext目录下没有找到String.class类。然后使用ExtClassLoader父类的加载器BootStrap，
 - 父类加载器BootStrap在JRE/lib目录的rt.jar找到了String.class，将其加载到内存中。这就是类加载器的委托机制。
 - 所以，用户自定义的java.lang.String不被加载，也就是不会被使用。
-##### +  substring
+### +  substring
 - 会创建一个新的字符串；
 - 编译时会将+转为StringBuilder的append方法。
 - 注意新的字符串是在运行时在堆里创建的。
@@ -242,7 +242,7 @@ public String(char value[], int offset, int count) {
 ```
 
 
-##### 常量池
+### 常量池
 - String str = new String(“ABC”);
 - 至少创建一个对象，也可能两个。因为用到new关键字，肯定会在heap中创建一个str2的String对象，它的value是“ABC”。同时如果这个字符串在字符串常量池里不存在，会在池里创建这个String对象“ABC”。
 - String s1= “a”;
@@ -258,7 +258,7 @@ public String(char value[], int offset, int count) {
 - 如果不在，那么会先在常量池中创建一份("abc")，然后在堆中创建一份(new String)，共创建两个对象。
 - 
 
-##### 编译优化
+### 编译优化
 - 字面量，final 都会在编译期被优化，并且会被直接运算好。
 -  
 
@@ -336,14 +336,14 @@ System.out.println(str1 == "SEUCalvin");// false
 
 - 在实例三的基础上加了第一行
 - str2先在常量池中创建了“SEUCalvin”，那么str1.intern()当然就直接指向了str2，你可以去验证它们两个是返回的true。后面的"SEUCalvin"也一样指向str2。所以谁都不搭理在堆空间中的str1了，所以都返回了false。
-#### StringBuffer&StringBuilder
+## StringBuffer&StringBuilder
 - StringBuffer是线程安全的，StringBuilder不是线程安全的，但它们两个中的所有方法都是相同的。StringBuffer在StringBuilder的方法之上添加了synchronized，保证线程安全。
 - StringBuilder比StringBuffer性能更好。
 
 - 
 
-### 面向对象
-#### 抽象类与接口
+# 1.7 面向对象
+## 抽象类与接口
 - 区别：
     - 1)抽象类中方法可以不是抽象的；接口中的方法必须是抽象方法；
     - 2)抽象类中可以有普通的成员变量；接口中的变量必须是 static final 类型的，必须被初始化 , 接口中只有常量，没有变量。
@@ -353,22 +353,22 @@ System.out.println(str1 == "SEUCalvin");// false
 - 使用场景：
 - 如果要创建不带任何方法定义和成员变量的基类，那么就应该选择接口而不是抽象类。
 - 如果知道某个类应该是基类，那么第一个选择的应该是让它成为一个接口，只有在必须要有方法定义和成员变量的时候，才应该选择抽象类。因为抽象类中允许存在一个或多个被具体实现的方法，只要方法没有被全部实现该类就仍是抽象类。
-#### 三大特性
+## 三大特性
 - 面向对象的三个特性：封装；继承；多态
 - 封装：将数据与操作数据的方法绑定起来，隐藏实现细节，对外提供接口。
 - 继承：代码重用；可扩展性
 - 多态：允许不同子类对象对同一消息做出不同响应
 
 - 多态的三个必要条件：继承、方法的重写、父类引用指向子类对象
-#### 重写和重载
+## 重写和重载
 - 根据对象对方法进行选择，称为分派
 - 编译期的静态多分派：overloading重载 根据调用引用类型和方法参数决定调用哪个方法（编译器)
 - 运行期的动态单分派：overriding 重写 根据指向对象的类型决定调用哪个方法（JVM)
 
 - 
 
-### 关键类
-#### ThreadLocal（线程局部变量)
+# 1.8 关键类
+## ThreadLocal（线程局部变量)
 - 在线程之间共享变量是存在风险的，有时可能要避免共享变量，使用ThreadLocal辅助类为各个线程提供各自的实例。
 - 例如有一个静态变量
 
@@ -391,7 +391,7 @@ public static final ThreadLocal<SimpleDateFormat> sdf = new ThreadLocal<SimpleDa
 
 
 - 实现原理：
-##### 1)每个线程的变量副本是存储在哪里的
+### 1)每个线程的变量副本是存储在哪里的
 - ThreadLocal的get方法就是从当前线程的ThreadLocalMap中取出当前线程对应的变量的副本。该Map的key是ThreadLocal对象，value是当前线程对应的变量。
 
 ```
@@ -426,10 +426,10 @@ public T get() {
 - 每个线程内部都会维护一个类似 HashMap 的对象，称为 ThreadLocalMap，里边会包含若干了 Entry（K-V 键值对)，相应的线程被称为这些 Entry 的属主线程；
 - Entry 的 Key 是一个 ThreadLocal 实例，Value 是一个线程特有对象。Entry 的作用即是：为其属主线程建立起一个 ThreadLocal 实例与一个线程特有对象之间的对应关系；
 - Entry 对 Key 的引用是弱引用；Entry 对 Value 的引用是强引用。
-##### 2)为什么ThreadLocalMap的Key是弱引用
+### 2)为什么ThreadLocalMap的Key是弱引用
 - 如果是强引用，ThreadLocal将无法被释放内存。
 - 因为如果这里使用普通的key-value形式来定义存储结构，实质上就会造成节点的生命周期与线程强绑定，只要线程没有销毁，那么节点在GC分析中一直处于可达状态，没办法被回收，而程序本身也无法判断是否可以清理节点。弱引用是Java中四档引用的第三档，比软引用更加弱一些，如果一个对象没有强引用链可达，那么一般活不过下一次GC。当某个ThreadLocal已经没有强引用可达，则随着它被垃圾回收，在ThreadLocalMap里对应的Entry的键值会失效，这为ThreadLocalMap本身的垃圾清理提供了便利。
-##### 3)ThreadLocalMap是何时初始化的（setInitialValue)
+### 3)ThreadLocalMap是何时初始化的（setInitialValue)
 - 在get时最后一行调用了setInitialValue，它又调用了我们自己重写的initialValue方法获得要线程局部变量对象。ThreadLocalMap没有被初始化的话，便初始化，并设置firstKey和firstValue；如果已经被初始化，那么将key和value放入map。
 
 ```
@@ -445,7 +445,7 @@ private T setInitialValue() {
 }
 ```
 
-##### 4)ThreadLocalMap 原理
+### 4)ThreadLocalMap 原理
 
 ```
 static class Entry extends WeakReference<ThreadLocal<?>> {
@@ -463,7 +463,7 @@ static class Entry extends WeakReference<ThreadLocal<?>> {
 - 它也是一个类似HashMap的数据结构，但是并没实现Map接口。
 - 也是初始化一个大小16的Entry数组，Entry对象用来保存每一个key-value键值对，只不过这里的key永远都是ThreadLocal对象，通过ThreadLocal对象的set方法，结果把ThreadLocal对象自己当做key，放进了ThreadLoalMap中。
 - ThreadLoalMap的Entry是继承WeakReference，和HashMap很大的区别是，Entry中没有next字段，所以就不存在链表的情况了。
-###### 构造方法
+#### 构造方法
 - ThreadLocalMap(ThreadLocal<?> firstKey, Object firstValue) {
     - // 表的大小始终为2的幂次
     table = new Entry[INITIAL_CAPACITY];
@@ -568,7 +568,7 @@ private int expungeStaleEntry(int staleSlot) {
     return i;
 }
 
-###### set（线性探测法解决hash冲突)
+#### set（线性探测法解决hash冲突)
 
 ```
 private void set(ThreadLocal<?> key, Object value) {
@@ -643,7 +643,7 @@ private static int nextIndex(int i, int len) {
 - 这样的话，在get的时候，也会根据ThreadLocal对象的hash值，定位到table中的位置，然后判断该位置Entry对象中的key是否和get的key一致，如果不一致，就判断下一个位置
 
 - 可以发现，set和get如果冲突严重的话，效率很低，因为ThreadLoalMap是Thread的一个属性，所以即使在自己的代码中控制了设置的元素个数，但还是不能控制其它代码的行为。
-###### cleanSomeSlots（启发式地清理slot)
+#### cleanSomeSlots（启发式地清理slot)
 - i是当前位置，n是元素个数
 - i对应entry是非无效（指向的ThreadLocal没被回收，或者entry本身为空)
 - n是用于控制控制扫描次数的
@@ -673,7 +673,7 @@ private boolean cleanSomeSlots(int i, int n) {
 ```
 
 
-###### rehash
+#### rehash
 - 先全量清理，如果清理后现有元素个数超过负载，那么扩容
 
 ```
@@ -736,7 +736,7 @@ private void resize() {
 ```
 
 
-###### remove
+#### remove
 
 ```
 private void remove(ThreadLocal<?> key) {
@@ -767,7 +767,7 @@ public void clear() {
 ```
 
 
-###### 内存泄露
+#### 内存泄露
 - 只有调用TheadLocal的remove或者get、set时才会采取措施去清理被回收的ThreadLocal对应的value（但也未必会清理所有的需要被回收的value)。假如一个局部的ThreadLocal不再需要，如果没有去调用remove方法清除，那么有可能会发生内存泄露。
 
 - 既然已经发现有内存泄露的隐患，自然有应对的策略，在调用ThreadLocal的get()、set()可能会清除ThreadLocalMap中key为null的Entry对象，这样对应的value就没有GC Roots可达了，下次GC的时候就可以被回收，当然如果调用remove方法，肯定会删除对应的Entry对象。
@@ -781,7 +781,7 @@ JDK建议将ThreadLocal变量定义成private static的，这样的话ThreadLoca
 
 - 
 
-#### Iterator / ListIterator / Iterable
+## Iterator / ListIterator / Iterable
 - 普通for循环时不能删除元素，否则会抛出异常；Iterator可以
 
 
@@ -960,7 +960,7 @@ private class ListItr extends Itr implements ListIterator<E> {
 }
 ```
 
-#### for /增强for/ forEach
+## for /增强for/ forEach
 For-each loop	Equivalent for loop
 for (type var : arr) {
     body-of-loop
@@ -993,7 +993,7 @@ for (type var : coll) {
 
 - 
 
-#### Comparable与Comparator
+## Comparable与Comparator
 
 - 基本数据类型包装类和String类均已实现了Comparable接口。
 - 实现了Comparable接口的类的对象的列表或数组可以通过Collections.sort或Arrays.sort进行自动排序，默认为升序。
@@ -1002,7 +1002,7 @@ for (type var : coll) {
 - 可以将 Comparator 传递给 sort 方法（如 Collections.sort 或 Arrays.sort)，从而允许在排序顺序上实现精确控制。还可以使用 Comparator 来控制某些数据结构（如TreeSet,TreeMap)的顺序。
 - 
 
-### 继承
+# 1.9 继承
 
 ```
 子类继承父类所有的成员变量（即使是private变量，有所有权，但是没有使用权，不能访问父类的private的成员变量)。
@@ -1021,7 +1021,7 @@ for (type var : coll) {
 
 - 
 
-### 内部类
+# 1.10 内部类
 - 在另一个类的里面定义的类就是内部类
 - 内部类是编译器现象，与虚拟机无关。
 - 编译器会将内部类编译成用$分割外部类名和内部类名的常规类文件，而虚拟机对此一无所知。
@@ -1032,7 +1032,7 @@ for (type var : coll) {
 ```
 
 
-#### 优点
+## 优点
 - 每个内部类都能独立地继承一个（接口的)实现，所以无论外部类是否已经继承了某个（接口的)实现，对于内部类都没有影响。
 - 接口只是解决了部分问题，而内部类使得多重继承的解决方案变得更加完整。
 
@@ -1045,13 +1045,13 @@ for (type var : coll) {
 
 - 只有静态内部类可以同时拥有静态成员和非静态成员，其他内部类只有拥有非静态成员。
 
-#### 成员内部类：就像外部类的一个成员变量
+## 成员内部类：就像外部类的一个成员变量
 
 
 - 注意内部类的对象总有一个外部类的引用
 - 当创建内部类对象时，会自动将外部类的this引用传递给当前的内部类的构造方法。
 
-#### 静态内部类：就像外部类的一个静态成员变量
+## 静态内部类：就像外部类的一个静态成员变量
 
 
 ```
@@ -1067,7 +1067,7 @@ public class OuterClass {
 ```
 
 
-#### 局部内部类：定义在一个方法或者一个块作用域里面的类
+## 局部内部类：定义在一个方法或者一个块作用域里面的类
 - 想创建一个类来辅助我们的解决方案，又不希望这个类是公共可用的，所以就产生了局部内部类，局部内部类和成员内部类一样被编译，只是它的作用域发生了改变，它只能在该方法和属性中被使用，出了该方法和属性就会失效。
 
 - JDK1.8之前不能访问非final的局部变量！
@@ -1093,7 +1093,7 @@ public Destination destination(String str) {
 ```
 
 
-#### 匿名内部类：必须继承一个父类或实现一个接口
+## 匿名内部类：必须继承一个父类或实现一个接口
 
 - 匿名内部类和局部内部类在JDK1.8 之前都不能访问一个非final的局部变量，只能访问final的局部变量，原因是生命周期不同，可能栈中的局部变量已经被销毁，而堆中的对象仍存活，此时会访问一个不存在的内存区域。假如是final的变量，那么编译时会将其拷贝一份，延长其生命周期。
 - 拷贝引用，为了避免引用值发生改变，例如被外部类的方法修改等，而导致内部类得到的值不一致，于是用final来让该引用不可改变。
@@ -1118,10 +1118,10 @@ public class AnonymousOuter {
 ```
 
 
-### 关键字
-#### final
+# 1.11 关键字
+## final
 
-#### try-finally-return
+## try-finally-return
 - 1、不管有没有出现异常，finally块中代码都会执行；
 - 2、当try和catch中有return时，finally仍然会执行；无论try里执行了return语句、break语句、还是continue语句，finally语句块还会继续执行；如果执行try和catch时JVM退出（比如System.exit(0))，那么finally不会被执行；
 - finally是在return后面的表达式运算后执行的（此时并没有返回运算后的值，而是先把要返回的值保存起来，管finally中的代码怎么样，返回的值都不会改变，仍然是之前保存的值)，所以函数返回值是在finally执行前确定的；
@@ -1164,33 +1164,33 @@ private static int test2() {
 ```
 
 
-#### static
+## static
 - static方法就是没有this的方法。在static方法内部不能调用非静态方法，反过来是可以的。而且可以在没有创建任何对象的前提下，仅仅通过类本身来调用static方法。这实际上正是static方法的主要用途。
-##### 1)修饰成员方法：静态成员方法
+### 1)修饰成员方法：静态成员方法
 - 在静态方法中不能访问类的非静态成员变量和非静态成员方法；
 - 在非静态成员方法中是可以访问静态成员方法/变量的；
 - 即使没有显式地声明为static，类的构造器实际上也是静态方法
 
-##### 2)修饰成员变量：静态成员变量
+### 2)修饰成员变量：静态成员变量
 - 静态变量和非静态变量的区别是：静态变量被所有的对象所共享，在内存中只有一个副本，它当且仅当在类初次加载时会被初始化。而非静态变量是对象所拥有的，在创建对象的时候被初始化，存在多个副本，各个对象拥有的副本互不影响。
 
 - 静态成员变量并发下不是线程安全的，并且对象是单例的情况下，非静态成员变量也不是线程安全的。
 
 - 怎么保证变量的线程安全?
 - 只有一个线程写，其他线程都是读的时候，加volatile；线程既读又写，可以考虑Atomic原子类和线程安全的集合类；或者考虑ThreadLocal
-##### 3)修饰代码块：静态代码块
+### 3)修饰代码块：静态代码块
 - 用来构造静态代码块以优化程序性能。static块可以置于类中的任何地方，类中可以有多个static块。在类初次被加载的时候，会按照static块的顺序来执行每个static块，并且只会执行一次。
 
-##### 4)修饰内部类：静态内部类
+### 4)修饰内部类：静态内部类
 - 成员内部类和静态内部类的区别：
     - 1)前者只能拥有非静态成员；后者既可拥有静态成员，又可拥有非静态成员
     - 2)前者持有外部类的的引用，可以访问外部类的静态成员和非静态成员；后者不持有外部类的引用，只能访问外部类的静态成员
     - 3)前者不能脱离外部类而存在；后者可以
-##### 5)修饰import：静态导包
+### 5)修饰import：静态导包
 - 
 
-#### switch
-##### switch字符串实现原理
+## switch
+### switch字符串实现原理
 - 对比反编译之后的结果：
 
 - 编译后switch还是基于整数，该整数来自于String的hashCode。
@@ -1198,16 +1198,16 @@ private static int test2() {
 
 - 
 
-##### 字节码实现原理（tableswitch / lookupswitch)
+### 字节码实现原理（tableswitch / lookupswitch)
 - 编译器会使用tableswitch和lookupswitch指令来生成switch语句的编译代码。当switch语句中的case分支的条件值比较稀疏时，tableswitch指令的空间使用率偏低。这种情况下将使用lookupswitch指令来替代。lookupswitch指令的索引表由int类型的键（来源于case语句块后面的数值)与对应的目标语句偏移量所构成。当lookupswitch指令执行时，switch语句的条件值将和索引表中的键进行比较，如果某个键和条件值相符，那么将转移到这个键对应的分支偏移量继续执行，如果没有键值符合，执行将在default分支执行。
 
-#### abstract
+## abstract
 - 只要含有抽象方法，这个类必须添加abstract关键字，定义为抽象类。
 - 只要父类是抽象类,内含抽象方法，那么继承这个类的子类的相对应的方法必须重写。如果不重写，就需要把父类的声明抽象方法再写一遍，留给这个子类的子类去实现。同时将这个子类也定义为抽象类。
 - 注意抽象类中可以有抽象方法，也可以有具体实现方法（当然也可以没有)。
 - 抽象方法须加abstract关键字，而具体方法不可加
 - 只要是抽象类，就不能存在这个类的对象（不可以new一个这个类的对象)。
-#### this & super
+## this & super
 - this
 - 自身引用；访问成员变量与方法；调用其他构造方法
 - 1. 通过this调用另一个构造方法，用法是this(参数列表)，这个仅在类的构造方法中可以使用
@@ -1222,10 +1222,10 @@ private static int test2() {
 - 与this类似，super相当于是指向当前对象的父类，这样就可以用super.xxx来引用父类的成员，如果不冲突的话也可以不加super。
 - 2.子类中的成员变量或方法与父类中的成员变量或方法同名时，为了区别，调用父类的成员必须要加super
 - 3.调用父类的构造函数
-#### 访问权限
+## 访问权限
 
-### 枚举
-#### JDK实现
+# 1.12 枚举
+## JDK实现
 - 实例：
 
 ```
@@ -1250,7 +1250,7 @@ public enum Labels0 {
 
 - 可以清晰地看到枚举被编译后其实就是一个类，该类被声明成 final，说明其不能被继承，同时它继承了 Enum 类。枚举里面的元素被声明成 static final ，另外生成一个静态代码块 static{}，最后还会生成 values 和 valueOf 两个方法。下面以最简单的 Labels 为例，一个一个模块来看。
 
-##### Enum 类
+### Enum 类
 - Enum 类是一个抽象类，主要有 name 和 ordinal 两个属性，分别用于表示枚举元素的名称和枚举元素的位置索引，而构造函数传入的两个变量刚好与之对应。
 
 - toString 方法直接返回 name。
@@ -1260,18 +1260,18 @@ public enum Labels0 {
 - compareTo 方法可以看到就是比较 ordinal 的大小。
 - valueOf 方法，根据传入的字符串 name 来返回对应的枚举元素。
 
-##### 静态代码块的实现
+### 静态代码块的实现
 - 在静态代码块中创建对象，对象是单例的！
 - 可以看到静态代码块主要完成的工作就是先分别创建 Labels 对象，然后将“ENVIRONMENT”、“TRAFFIC”和“PHONE”字符串作为 name ，按照顺序分别分配位置索引0、1、2作为 ordinal，然后将其值设置给创建的三个 Labels 对象的 name 和 ordinal 属性，此外还会创建一个大小为3的 Labels 数组 ENUM$VALUES，将前面创建出来的 Labels 对象分别赋值给数组。
-##### values的实现
+### values的实现
 - 可以看到它是一个静态方法，主要是使用了前面静态代码块中的 Labels 数组 ENUM$VALUES，调用 System.arraycopy 对其进行复制，然后返回该数组。所以通过 Labels.values()[2]就能获取到数组中索引为2的元素。
-##### valueOf 方法
+### valueOf 方法
 - 该方法同样是个静态方法，可以看到该方法的实现是间接调用了父类 Enum 类的 valueOf 方法，根据传入的字符串 name 来返回对应的枚举元素，比如可以通过 Labels.valueOf("ENVIRONMENT")获取 Labels.ENVIRONMENT。
 
 - 枚举本质其实也是一个类，而且都会继承java.lang.Enum类，同时还会生成一个静态代码块 static{}，并且还会生成 values 和 valueOf 两个方法。而上述的工作都需要由编译器来完成，然后我们就可以像使用我们熟悉的类那样去使用枚举了。
 - 
 
-#### 用enum代替int常量
+## 用enum代替int常量
 - 将int枚举常量翻译成可打印的字符串，没有很便利的方法。
 - 要遍历一个枚举组中的所有int 枚举常量，甚至获得int枚举组的大小。
 
@@ -1282,15 +1282,15 @@ public enum Labels0 {
 - 可以在枚举类型中放入这段代码，可以实现String2Enum。
 - 注意Operation是枚举类型名。
 
-#### 用实例域代替序数
+## 用实例域代替序数
 
 - 这种实现不好，不推荐使用ordinal方法，推荐使用下面这种实现：
 
 
-#### 用EnumSet代替位域
+## 用EnumSet代替位域
 - 位域是将几个常量合并到一个集合中，我们推荐用枚举代替常量，用EnumSet代替集合
     - EnumSet.of(enum1,enum2) -> Set<枚举>
-#### 用EnumMap代替序数索引
+## 用EnumMap代替序数索引
 
 
 
@@ -1302,14 +1302,14 @@ public enum Labels0 {
 
 - 
 
-### 序列化
-#### JDK序列化（Serizalizable)
+# 1.13 序列化
+## JDK序列化（Serizalizable)
 - 定义：将实现了Serializable接口（标记型接口)的对象转换成一个字节数组，并可以将该字节数组转为原来的对象。
 
 - ObjectOutputStream 是专门用来输出对象的输出流；
 - ObjectOutputStream 将 Java 对象写入 OutputStream。可以使用 ObjectInputStream 读取（重构)对象。
 
-#### serialVersionUID
+## serialVersionUID
 - Java的序列化机制是通过在运行时判断类的serialVersionUID来验证版本一致性的。在进行反序列化时，JVM会把传来的字节流中的serialVersionUID与本地相应实体（类)的serialVersionUID进行比较，如果相同就认为是一致的，可以进行反序列化，否则就会出现序列化版本不一致的异常。(InvalidCastException)。
 
     - 1)如果没有添加serialVersionUID，进行了序列化，而在反序列化的时候，修改了类的结构（添加或删除成员变量，修改成员变量的命名)，此时会报错。
@@ -1317,11 +1317,11 @@ public enum Labels0 {
 
 - 如果设置了serialVersionUID并且一致，那么可能会反序列化部分数据；如果没有设置，那么只要属性不同，那么无法反序列化。
 
-#### 其他序列化工具
+## 其他序列化工具
 - XML/JSON
 - Thrift/Protobuf
 
-#### 对象深拷贝与浅拷贝
+## 对象深拷贝与浅拷贝
 - 当拷贝一个变量时，原始引用和拷贝的引用指向同一个对象，改变一个引用所指向的对象会对另一个引用产生影响。
 - 如果需要创建一个对象的浅拷贝，那么需要调用clone方法。
 - Object 类本身不实现接口 Cloneable，直接调用clone会抛出异常。
@@ -1398,13 +1398,13 @@ protected Object clone()  {
 
 - 
 
-### 异常
+# 1.14 异常
 
 
-#### Error、Exception
+## Error、Exception
 - Error是程序无法处理的错误，它是由JVM产生和抛出的，比如OutOfMemoryError、ThreadDeath等。这些异常发生时，Java虚拟机（JVM)一般会选择线程终止。
 - Exception是程序本身可以处理的异常，这种异常分两大类运行时异常和非运行时异常。程序中应当尽可能去处理这些异常。
-#### 常见RuntimeException	
+## 常见RuntimeException	
 - IllegalArgumentException - 方法的参数无效
 - NullPointerException - 试图访问一空对象的变量、方法或空数组的元素
 - ArrayIndexOutOfBoundsException - 数组越界访问
@@ -1412,12 +1412,12 @@ protected Object clone()  {
 - NumberFormatException 继承IllegalArgumentException，字符串转换为数字时出现。比如int i= Integer.parseInt("ab3");
 - 
 
-#### RuntimeException与非Runtime	Exception
+## RuntimeException与非Runtime	Exception
 - RuntimeException是运行时异常，也称为未检查异常；
 - 非RuntimeException 也称为CheckedException 受检异常
 
 - 前者可以不必进行try-catch，后者必须要进行try-catch或者throw。
-#### 异常包装
+## 异常包装
 - 在catch子句中可以抛出一个异常，这样做的目的是改变异常的类型
 - try{
 - 	…
@@ -1441,14 +1441,14 @@ protected Object clone()  {
 - 早抛出，晚捕获。
 - 
 
-### 泛型
+# 1.15 泛型
 - 泛型，即“参数化类型”。一提到参数，最熟悉的就是定义方法时有形参，然后调用此方法时传递实参。那么参数化类型怎么理解呢？顾名思义，就是将类型由原来的具体的类型参数化，类似于方法中的变量参数，此时类型也定义成参数形式（可以称之为类型形参)，然后在使用/调用时传入具体的类型（类型实参)。
-#### 泛型接口/类/方法
-#### 泛型继承、实现
+## 泛型接口/类/方法
+## 泛型继承、实现
 
 - 父类使用泛型，子类要么去指定具体类型参数，要么继续使用泛型
 
-#### 泛型的约束和局限性
+## 泛型的约束和局限性
     - 1)只能使用包装器类型，不能使用基本数据类型；
 
     - 2)运行时类型查询只适用于原始类型，不适用于带类型参数的类型；
@@ -1465,7 +1465,7 @@ public static <T extends Comparable> T[] minmax(T… a){
 - 	T[] mm = (T[]) Array.newInstance(a.getClass().getComponentType(),个数);
 - 	…复制
 - }
-#### 通配符
+## 通配符
 
 - ? 未知类型 只可以用于声明时，声明类型或方法参数，不能用于定义时（指定类型参数时)
 - List<?> unknownList;
@@ -1478,7 +1478,7 @@ public static <T extends Comparable> T[] minmax(T… a){
 
 - 
 
-#### extends 指定类型必为自身或其子类
+## extends 指定类型必为自身或其子类
 
 - List<? extends Fruit>
 - 这个引用变量如果作为参数，哪些引用可以传入？
@@ -1501,11 +1501,11 @@ public static <T extends Comparable> T[] minmax(T… a){
     - list.add(new Integer(1)); //error
 - list.add(new Float(1.2f));  //error
 
-#### super 指定类型必为自身或其父类
+## super 指定类型必为自身或其父类
 
 
 - 不能同时声明泛型通配符申明上界和下界
-#### PECS（读extends，写super)
+## PECS（读extends，写super)
 - producer-extends, consumer-super.
 - produce是指参数是producer，consumer是指参数是consumer。
 - 要往泛型类写数据时，用extends；
@@ -1560,7 +1560,7 @@ public static <T> void copy(List<? super T> dest, List<? extends T> src) {
 
 - 
 
-#### 泛型擦除（编译时擦除)
+## 泛型擦除（编译时擦除)
 - 编译器生成的bytecode是不包含泛型信息的，泛型类型信息将在编译处理是被擦除，这个过程即泛型擦除。
 - 擦除类型变量，并替换为限定类型（无限定的变量用Object)。
 
@@ -1602,13 +1602,13 @@ public interface Builder<K,V> {
 
 - 
 
-### IO
-#### Unix IO模型
+# 1.16 IO
+## Unix IO模型
 - 异步I/O 是指用户程序发起IO请求后，不等待数据，同时操作系统内核负责I/O操作把数据从内核拷贝到用户程序的缓冲区后通知应用程序。数据拷贝是由操作系统内核完成，用户程序从一开始就没有等待数据，发起请求后不参与任何IO操作，等内核通知完成。
 - 同步I/O 就是非异步IO的情况，也就是用户程序要参与把数据拷贝到程序缓冲区（例如java的InputStream读字节流过程)。
 - 同步IO里的非阻塞 是指用户程序发起IO操作请求后不等待数据，而是调用会立即返回一个标志信息告知条件不满足，数据未准备好，从而用户请求程序继续执行其它任务。执行完其它任务，用户程序会主动轮询查看IO操作条件是否满足，如果满足，则用户程序亲自参与拷贝数据动作。
 - Unix IO模型的语境下，同步和异步的区别在于数据拷贝阶段是否需要完全由操作系统处理。阻塞和非阻塞操作是针对发起IO请求操作后是否有立刻返回一个标志信息而不让请求线程等待。
-#### BIO NIO AIO介绍
+## BIO NIO AIO介绍
 
 - BIO：同步阻塞，每个客户端的连接会对应服务器的一个线程
 - NIO：同步非阻塞，多路复用器轮询客户端的请求，每个客户端的IO请求会对应服务器的一个线程
@@ -1624,7 +1624,7 @@ public interface Builder<K,V> {
 - 异步IO就是指AIO，AIO需要操作系统支持。
 - 
 
-#### Java BIO 使用
+## Java BIO 使用
 
 - Server
 
@@ -2035,7 +2035,7 @@ public class ChatClient extends Frame {
 - }
 
 
-#### Java NIO 使用
+## Java NIO 使用
 - 传统的IO操作面向数据流，意味着每次从流中读一个或多个字节，直至完成，数据没有被缓存在任何地方。
 - NIO操作面向缓冲区，数据从Channel读取到Buffer缓冲区，随后在Buffer中处理数据。
 - BIO中的accept是没有客户端连接时阻塞，NIO的accept是没有客户端连接时立即返回。
@@ -2044,14 +2044,14 @@ public class ChatClient extends Frame {
 - Buffer是用于容纳数据的缓冲区，Channel是与IO设备之间的连接，类似于流。
 - 数据可以从Channel读到Buffer中，也可以从Buffer 写到Channel中。
 - Selector是Channel的多路复用器。
-##### Buffer（缓冲区)
+### Buffer（缓冲区)
 
 - 
 
 
 - clear 是将position置为0，limit置为capacity；
 - flip是将limit置为position，position置为0；
-###### MappedByteBuffer（对应OS中的内存映射文件)
+#### MappedByteBuffer（对应OS中的内存映射文件)
 - ByteBuffer有两种模式:直接/间接。间接模式就是HeapByteBuffer,即操作堆内存 (byte[])。
 - 但是内存毕竟有限,如果我要发送一个1G的文件怎么办?不可能真的去分配1G的内存.这时就必须使用"直接"模式,即 MappedByteBuffer。
 
@@ -2080,7 +2080,7 @@ public class ChatClient extends Frame {
 - MappedByteBuffer在处理大文件时的确性能很高，但也存在一些问题，如内存占用、文件关闭不确定，被其打开的文件只有在垃圾回收的才会被关闭，而且这个时间点是不确定的。
 - 
 
-###### DirectByteBuffer（堆外内存)
+#### DirectByteBuffer（堆外内存)
 - DirectByteBuffer继承自MappedByteBuffer，它们都是使用的堆外内存，不受JVM堆大小的限制，只是前者仅仅是分配内存，后者是将文件映射到内存中。
 - 可以通过ByteBuf.allocateDirect方法获取。
 
@@ -2097,7 +2097,7 @@ public class ChatClient extends Frame {
 
 - 
 
-###### 堆外内存的释放
+#### 堆外内存的释放
 - java.nio.DirectByteBuffer对象在创建过程中会先通过Unsafe接口直接通过os::malloc来分配内存，然后将内存的起始地址和大小存到java.nio.DirectByteBuffer对象里，这样就可以直接操作这些内存。这些内存只有在DirectByteBuffer回收掉之后才有机会被回收，因此如果这些对象大部分都移到了old，但是一直没有触发CMS GC或者Full GC，那么悲剧将会发生，因为你的物理内存被他们耗尽了，因此为了避免这种悲剧的发生，通过-XX:MaxDirectMemorySize来指定最大的堆外内存大小，当使用达到了阈值的时候将调用System.gc来做一次full gc，以此来回收掉没有被使用的堆外内存。
 
 - GC方式：
@@ -2149,9 +2149,9 @@ public static void main(String[] args) {
 
 - 
 
-##### Channel（通道)
+### Channel（通道)
 - Channel与IO设备的连接，与Stream是平级的概念。
-###### 流与通道的区别
+#### 流与通道的区别
 - 1、流是单向的，通道是双向的，可读可写。
 - 2、流读写是阻塞的，通道可以异步读写。
 - 3、流中的数据可以选择性的先读到缓存中，通道的数据总是要先读到一个缓存中，或从缓存中写入
@@ -2159,11 +2159,11 @@ public static void main(String[] args) {
 
 - 注意，FileChannel 不能设置为非阻塞模式。
 
-###### 分散与聚集
+#### 分散与聚集
 - 分散（scatter)从Channel中读取是指在读操作时将读取的数据写入多个buffer中。因此，Channel将从Channel中读取的数据“分散（scatter)”到多个Buffer中。
 
 - 聚集（gather)写入Channel是指在写操作时将多个buffer的数据写入同一个Channel，因此，Channel 将多个Buffer中的数据“聚集（gather)”后发送到Channel。
-###### Pipe
+#### Pipe
 
 
 ```
@@ -2233,7 +2233,7 @@ public class PipeTest {
 
 - 
 
-###### FileChannel与文件锁
+#### FileChannel与文件锁
 - 在通道中我们可以对文件或者部分文件进行上锁。上锁和我们了解的线程锁差不多，都是为了保证数据的一致性。在文件通道FileChannel中可以对文件进行上锁，通过FileLock可以对文件进行锁的释放。
 - 文件加锁是建立在文件通道（FileChannel)之上的，套接字通道（SockeChannel)不考虑文件加锁，因为它是不共享的。它对文件加锁有两种方式：
 - ①lock
@@ -2259,7 +2259,7 @@ public class PipeTest {
 
 - 
 
-##### Selector （Channel的多路复用器)
+### Selector （Channel的多路复用器)
 
 - Selector可以用单线程去管理多个Channel（多个连接)。
 - 放在网络编程的环境下：Selector使用单线程，轮询客户端对应的Channel的请求，如果某个Channel需要进行IO，那么分配一个线程去执行IO操作。
@@ -2271,11 +2271,11 @@ public class PipeTest {
 - 每次请求到达服务器，都是从connect开始，connect成功后，服务端开始准备accept，准备就绪，开始读数据，并处理，最后写回数据返回。
 - SelectionKey是一个复合事件，绑定到某个selector对应的某个channel上，可能是多个事件的复合或单一事件。
 
-#### Java NIO 实例（文件上传)
+## Java NIO 实例（文件上传)
 - 服务器主线程先创建Socket，并注册到selector，然后轮询selector。
     - 1)如果有客户端需要进行连接，那么selector返回ACCEPT事件，主线程建立连接（accept)，并将该客户端连接注册到selector，结束，继续轮询selector等待下一个客户端事件；
     - 2)如果有已连接的客户端需要进行读写，那么selector返回READ/WRITE事件，主线程将该请求交给IO线程池中的某个线程执行操作，结束，继续轮询selector等待下一个客户端事件。
-##### 服务器
+### 服务器
 
 ```
 public class NIOTCPServer {
@@ -2401,7 +2401,7 @@ public class NIOTCPServer {
 }
 ```
 
-##### 客户端
+### 客户端
 
 ```
 public class NIOTCPClient {
@@ -2454,7 +2454,7 @@ public class NIOTCPClient {
 
 - 
 
-#### Java AIO 使用
+## Java AIO 使用
 - 对AIO来说，它不是在IO准备好时再通知线程，而是在IO操作已经完成后，再给线程发出通知。因此AIO是不会阻塞的，此时我们的业务逻辑将变成一个回调函数，等待IO操作完成后，由系统自动触发。
 - AIO的四步：
 - 1、进程向操作系统请求数据 
@@ -2631,9 +2631,9 @@ public class AIOServer {
 
 - 
 
-#### Java NIO 源码
+## Java NIO 源码
 - 关于Selector源码过于难以理解，可以先放过。
-##### Buffer
+### Buffer
 
 ```
 public abstract class Buffer {
@@ -2694,9 +2694,9 @@ public static ByteBuffer allocateDirect(int capacity) {
 ```
 
 
-##### HeapByteBuffer（间接模式)
+### HeapByteBuffer（间接模式)
 - 底层基于byte数组。
-###### 初始化
+#### 初始化
 
 ```
 HeapByteBuffer(int cap, int lim) {            // package-private
@@ -2721,7 +2721,7 @@ ByteBuffer(int mark, int pos, int lim, int cap,   // package-private
 final int offset;
 boolean isReadOnly;                 // Valid only for heap buffers
 
-###### get
+#### get
 
 ```
 public byte get() {
@@ -2744,7 +2744,7 @@ final int nextGetIndex() {                          // package-private
     return i + offset;
 }
 
-###### put
+#### put
 
 ```
 public ByteBuffer put(byte x) {
@@ -2766,14 +2766,14 @@ final int nextPutIndex() {                          // package-private
 
 - 
 
-##### DirectByteBuffer（直接模式)
+### DirectByteBuffer（直接模式)
 - 底层基于c++的malloc分配的堆外内存，是使用Unsafe类分配的，底层调用了native方法。
 - 在创建DirectByteBuffer的同时，创建一个与其对应的cleaner，cleaner是一个虚引用。
 - 回收堆外内存的几种情况：
     - 1)程序员手工释放，需要使用sun的非公开API实现。
     - 2)申请新的堆外内存而内存不足时，会进行调用Cleaner（作为一个Reference)的静态方法tryHandlePending(false)，它又会调用cleaner的clean方法释放内存。
     - 3)当DirectByteBuffer失去强引用,只有虚引用时，当等到某一次System.gc（full gc)（比如堆外内存达到XX:MaxDirectMemorySize)时，当DirectByteBuffer对象从pending状态 -> enqueue状态时，会触发Cleaner的clean()，而Cleaner的clean()的方法会实现通过unsafe对堆外内存的释放。
-###### 初始化
+#### 初始化
 - 重要成员变量：
 
 ```
@@ -2963,7 +2963,7 @@ ByteBuffer(int mark, int pos, int lim, int cap) { // package-private
     return true;
 }
 
-###### Deallocator
+#### Deallocator
 - 后面是调用unsafe的分配堆外内存的方法，然后初始化了该DirectByteBuffer对应的cleaner。
 - 注：在Cleaner 内部中通过一个列表，维护了一个针对每一个 directBuffer 的一个回收堆外内存的 线程对象(Runnable)，回收操作是发生在 Cleaner 的 clean() 方法中。
 
@@ -3000,7 +3000,7 @@ private static class Deallocator
 ```
 
 
-###### Cleaner（回收)
+#### Cleaner（回收)
 
 ```
 public class Cleaner extends PhantomReference<Object> {
@@ -3091,7 +3091,7 @@ public PhantomReference(T referent, ReferenceQueue<? super T> q) {
 ```
 
 
-###### get
+#### get
 
 ```
 public byte get() {
@@ -3099,7 +3099,7 @@ public byte get() {
 }
 ```
 
-###### put
+#### put
 
 ```
 public ByteBuffer put(byte x) {
@@ -3111,10 +3111,10 @@ public ByteBuffer put(byte x) {
 
 - 
 
-##### FileChannel（阻塞式)
+### FileChannel（阻塞式)
 - FileChannel的read、write和map通过其实现类FileChannelImpl实现。
 - FileChannelImpl的Oracle JDK没有提供源码，只能在OpenJDK中查看。
-###### open
+#### open
 
 ```
 public static FileChannel open(Path path, OpenOption... options)
@@ -3365,7 +3365,7 @@ private static native long CreateFile0(long lpFileName,
 
 - 
 
-###### read
+#### read
 
 ```
 public int read(ByteBuffer dst) throws IOException {
@@ -3419,7 +3419,7 @@ public int read(ByteBuffer dst) throws IOException {
 - 3、把bb的数据读取到dst（用户定义的缓存，在jvm中分配内存)。 
 - read方法导致数据复制了两次。
 
-###### write
+#### write
 
 ```
 public int write(ByteBuffer src) throws IOException {
@@ -3507,9 +3507,9 @@ private static int writeFromNativeBuffer(FileDescriptor fd,
 - write方法也导致了数据复制了两次。
 - 
 
-##### ServerSocketChannel
+### ServerSocketChannel
 - 它的实现类是ServerSocketChannelImpl，同样是闭源的。
-###### open
+#### open
 
 ```
 public static ServerSocketChannel open() throws IOException {
@@ -3549,7 +3549,7 @@ public ServerSocketChannel openServerSocketChannel() throws IOException {
 
 - 
 
-###### bind
+#### bind
 
 ```
 public ServerSocketChannel bind(SocketAddress local, int backlog) throws IOException {
@@ -3577,7 +3577,7 @@ public ServerSocketChannel bind(SocketAddress local, int backlog) throws IOExcep
 
 - 
 
-###### register
+#### register
 - Selector是通过Selector.open方法获得的。
 - 将这个通道channel注册到指定的selector中，返回一个SelectionKey对象实例。
 - register这个方法在实现代码上的逻辑有以下四点：
@@ -3639,11 +3639,11 @@ private SelectionKey findKey(Selector sel) {
 
 - 
 
-##### Selector（如何实现Channel多路复用)
+### Selector（如何实现Channel多路复用)
 
 - SocketChannel、ServerSocketChannel和Selector的实例初始化都通过SelectorProvider类实现，其中Selector是整个NIO Socket的核心实现。
 - SelectorProvider在windows和linux下有不同的实现，provider方法会返回对应的实现。
-###### 成员变量
+#### 成员变量
 1.- final class WindowsSelectorImpl extends SelectorImpl  
 2.- {  
 3.
@@ -3749,7 +3749,7 @@ private SelectionKey findKey(Selector sel) {
 27.-     }   
 28.- }  
 
-###### open
+#### open
 
 ```
 public static Selector open() throws IOException {
@@ -3817,7 +3817,7 @@ protected final SelectionKey register(AbstractSelectableChannel ch,
     }
 }
 
-###### select（返回有事件发生的SelectionKey数量)
+#### select（返回有事件发生的SelectionKey数量)
 - var1是timeout时间，无参数的版本对应的timeout为0.
 - select(long timeout)和select()一样，除了最长会阻塞timeout毫秒(参数)。
 - 这个方法并不能提供精确时间的保证，和当执行wait(long timeout)方法时并不能保证会延时timeout道理一样。
@@ -4074,7 +4074,7 @@ Java_sun_nio_ch_WindowsSelectorImpl_00024SubSelector_poll0(JNIEnv *env, jobject 
 - epoll是Linux下的一种IO多路复用技术，可以非常高效的处理数以百万计的socket句柄。
 - 在Windows下是IOCP
 
-###### WindowsSelectorImpl.wakeup()
+#### WindowsSelectorImpl.wakeup()
 
 ```
 public Selector wakeup() {
@@ -4119,10 +4119,10 @@ Java_sun_nio_ch_WindowsSelectorImpl_setWakeupSocket0(JNIEnv *env, jclass this,
 
 - 
 
-#### Java AIO 源码
-##### AsynchronousFileChannle（AIO,基于CompletionHandler回调)
+## Java AIO 源码
+### AsynchronousFileChannle（AIO,基于CompletionHandler回调)
 - 在Java 7中，AsynchronousFileChannel被添加到Java NIO。AsynchronousFileChannel使读取数据，并异步地将数据写入文件成为可能。
-###### open
+#### open
 - Path path = Paths.get("data/test.xml");
 
 - AsynchronousFileChannel fileChannel =
@@ -4214,19 +4214,19 @@ public static AsynchronousFileChannel open(FileDescriptor fdo,
 ```
 
 
-###### read
-###### write
+#### read
+#### write
 
 - 
 
 
 - 
 
-#### Netty NIO
+## Netty NIO
 - 基于这个语境，Netty目前的版本是没有把IO操作交过操作系统处理的，所以是属于同步的。如果别人说Netty是异步非阻塞，如果要深究，那真要看看Netty新的版本是否把IO操作交过操作系统处理，或者看看有否使用JDK1.7中的AIO API，否则他们说的异步其实是指客户端程序调用Netty的IO操作API“不停顿等待”。
 
 - 很多人所讲的异步其实指的是编程模型上的异步（即回调)，而非应用程序的异步。
-#### NIO与Epoll
+## NIO与Epoll
 - Linux2.6之后支持epoll
 - windows支持select而不支持epoll
 - 不同系统下nio的实现是不一样的，包括Sunos linux 和windows
@@ -4237,7 +4237,7 @@ public static AsynchronousFileChannel open(FileDescriptor fdo,
 
 - 
 
-### 动态代理
+# 1.17 动态代理
 - 静态代理：代理类是在编译时就实现好的。也就是说 Java 编译完成后代理类是一个实际的 class 文件。
 - 动态代理：代理类是在运行时生成的。也就是说 Java 编译完之后并没有实际的 class 文件，而是在运行时动态生成的类字节码，并加载到JVM中。
 
@@ -4246,7 +4246,7 @@ public static AsynchronousFileChannel open(FileDescriptor fdo,
 - 前者必须基于接口，后者不需要接口，是基于继承的，但是不能代理final类和final方法；
 - JDK采用反射机制调用委托类的方法，CGLIB采用类似索引的方式直接调用委托类方法；
 - 前者效率略低于后者效率，CGLIB效率略高（不是一定的)
-#### JDK动态代理 使用
+## JDK动态代理 使用
 - Proxy类（代理类)的设计用到代理模式的设计思想，Proxy类对象实现了代理目标的所有接口，并代替目标对象进行实际的操作。代理的目的是在目标对象方法的基础上作增强，这种增强的本质通常就是对目标对象的方法进行拦截。所以，Proxy应该包括一个方法拦截器，来指示当拦截到方法调用时作何种处理。InvocationHandler就是拦截器的接口。
 
 - Proxy (代理) 提供用于创建动态代理类和实例的静态方法，它还是由这些方法创建的所有动态代理类的超类。 
@@ -4257,7 +4257,7 @@ public static AsynchronousFileChannel open(FileDescriptor fdo,
 - 第一步，我们要有一个接口，还要有一个接口的实现类，而这个实现类呢就是我们要代理的对象， 所谓代理呢也就是在调用实现类的方法时，可以在方法执行前后做额外的工作。 
 - 第二步，我们要自己写一个在代理类的方法要执行时，能够做额外工作的类（拦截器)，而这个类必须继承InvocationHandler接口， 为什么要继承它呢？因为代理类的实例在调用实现类的方法的时候，不会调用真正的实现类的这个方法， 而是转而调用这个类的invoke方法（继承时必须实现的方法)，在这个方法中你可以调用真正的实现类的这个方法。
 
-#### JDK动态代理 原理
+## JDK动态代理 原理
 - Proxy#newProxyInstance
 - 会返回一个实现了指定接口的代理对象，对该对象的所有方法调用都会转发给InvocationHandler.invoke()方法。
 
@@ -4321,7 +4321,7 @@ public static Object newProxyInstance(ClassLoader loader,
     }
 }
 
-##### 1)getProxyClass0（生成代理类的class)
+### 1)getProxyClass0（生成代理类的class)
 - 最终生成是通过ProxyGenerator的generateProxyClass方法实现的。
 
 ```
@@ -4789,10 +4789,10 @@ private byte[] generateClassFile() {
 ```
 
 
-##### 2)getConstructor（获取代理类的构造方法)
-##### 3)newInstance（初始化代理对象)
+### 2)getConstructor（获取代理类的构造方法)
+### 3)newInstance（初始化代理对象)
 
-#### CGLIB动态代理 使用
+## CGLIB动态代理 使用
 - CGLIB(Code Generation Library)是一个基于ASM的字节码生成库，它允许我们在运行时对字节码进行修改和动态生成。CGLIB通过继承方式实现代理。
 - CGLIB的核心类：
 -     net.sf.cglib.proxy.Enhancer – 主要的增强类
@@ -4853,7 +4853,7 @@ public class Main {
 - 既然是继承就不得不考虑final的问题。我们知道final类型不能有子类，所以CGLIB不能代理final类型。
 - final方法是不能重载的，所以也不能通过CGLIB代理，遇到这种情况不会抛异常，而是会跳过final方法只代理其他方法。
 
-#### CGLIB动态代理 原理
+## CGLIB动态代理 原理
 - 1、生成代理类Class的二进制字节码（基于ASM)； 
 - 2、通过 Class.forName加载二进制字节码，生成Class对象； 
 - 3、通过反射机制获取实例构造，并初始化代理类对象。
@@ -4887,7 +4887,7 @@ private static class FastClassInfo
 - f1指向委托类对象，f2指向代理类对象
 - i1是被代理的方法在对象中的索引位置
 - i2是CGLIB$被代理的方法$0在对象中的索引位置
-##### FastClass实现机制
+### FastClass实现机制
 - FastClass其实就是对Class对象进行特殊处理，提出下标概念index，通过索引保存方法的引用信息，将原先的反射调用，转化为方法的直接调用，从而体现所谓的fast。
 
 
@@ -4897,12 +4897,12 @@ private static class FastClassInfo
 
 - 
 
-### 反射
+# 1.18 反射
 - Java的动态性体现在：反射机制、动态执行脚本语言、动态操作字节码
 - 反射：在运行时加载、探知、使用编译时未知的类。
 
 - Class.forName使用的类加载器是调用者的类加载器
-#### Class
+## Class
 - 表示Java中的类型（class、interface、enum、annotation、primitive type、void)本身。
 
 
@@ -4911,9 +4911,9 @@ private static class FastClassInfo
 - 反射的核心就是Class
 
 - 如果多次执行forName等加载类的方法，类只会被加载一次；一个类只会形成一个Class对象，无论执行多少次加载类的方法，获得的Class都是一样的。
-#### 用途
+## 用途
 
-#### 性能
+## 性能
 - 反射带来灵活性的同时，也有降低程序执行效率的弊端
 - setAccessible方法不仅可以标记某些私有的属性方法为可访问的属性方法，并且可以提高程序的执行效率
 
@@ -4925,10 +4925,10 @@ private static class FastClassInfo
     - 2)产生很多临时对象，造成GC与计算时间消耗
     - 3)由于缺少上下文，丢失了很多运行时的优化，比如JIT(它可以看作JVM的重要评测标准之一)
 - 当然，现代JVM也不是非常慢了，它能够对反射代码进行缓存以及通过方法计数器同样实现JIT优化，所以反射不一定慢。
-#### 实现
+## 实现
 - 反射在Java中可以直接调用，不过最终调用的仍是native方法，以下为主流反射操作的实现。
 
-##### Class.forName的实现
+### Class.forName的实现
 - Class.forName可以通过包名寻找Class对象，比如Class.forName("java.lang.String")。
 - 在JDK的源码实现中，可以发现最终调用的是native方法forName0()，它在JVM中调用的实际是FindClassFromCaller()，原理与ClassLoader的流程一样。
 
@@ -5045,7 +5045,7 @@ JVM_END
 
 - 
 
-##### getDeclaredFields的实现
+### getDeclaredFields的实现
 - 在JDK源码中，可以知道class.getDeclaredFields()方法实际调用的是native方法getDeclaredFields0()，它在JVM主要实现步骤如下：
     - 1)根据Class结构体信息，获取field_count与fields[]字段，这个字段早已在load过程中被放入了
     - 2)根据field_count的大小分配内存、创建数组
@@ -5104,7 +5104,7 @@ private static Field[] copyFields(Field[] arg) {
 
 - 
 
-##### Method.invoke的实现
+### Method.invoke的实现
 - 以下为无同步、无异常的情况下调用的步骤
 
     - 1)创建Frame
@@ -5205,7 +5205,7 @@ JVM_END
 
 - 
 
-##### class.newInstance的实现
+### class.newInstance的实现
     - 1)检测权限、预分配空间大小等参数
     - 2)创建Object对象，并分配空间
     - 3)通过Method.invoke调用构造函数(<init>())
@@ -5279,8 +5279,8 @@ public T newInstance()
 
 - 
 
-### XML
-#### DOM
+# 1.19 XML
+## DOM
 - OM是用与平台和语言无关的方式表示XML文档的官方W3C标准。DOM是以层次结构组织的节点或信息片断的集合。这个层次结构允许开发人员在树中寻找特定信息。分析该结构通常需要加载整个文档和构造层次结构，然后才能做任何工作。由于它是基于信息层次的，因而DOM被认为是基于树或基于对象的。
 
 - 优点
@@ -5290,7 +5290,7 @@ public T newInstance()
 - ①通常需要加载整个XML文档来构造层次结构，消耗资源大。
 
 -     
-#### SAX
+## SAX
 - SAX处理的优点非常类似于流媒体的优点。分析能够立即开始，而不是等待所有的数据被处理。而且，由于应用程序只是在读取数据时检查数据，因此不需要将数据存储在内存中。这对于大型文档来说是个巨大的优点。事实上，应用程序甚至不必解析整个文档；它可以在某个条件得到满足时停止解析。一般来说，SAX还比它的替代者DOM快许多。
 - 优点
 - ①不需要等待所有数据都被处理，分析就能立即开始。
@@ -5307,8 +5307,8 @@ public T newInstance()
 
 - 
 
-### Java8
-#### Lambda表达式&函数式接口&方法引用&Stream API
+# 1.20 Java8
+## Lambda表达式&函数式接口&方法引用&Stream API
 - Java8 stream迭代的优势和区别；lambda表达式？为什么要引入它
 
     - 1)流（高级Iterator)：对集合对象进行各种非常便利、高效的聚合操作（aggregate operation)，或者大批量数据操作 (bulk data operation)，隐式迭代等，代码简洁
@@ -5319,773 +5319,48 @@ public T newInstance()
 - 类::静态方法
 - 类::实例方法名
 
-#### Optional
+## Optional
 - Optional仅仅是一个容易：存放T类型的值或者null。它提供了一些有用的接口来避免显式的null检查。
-#### CompletableFuture
+## CompletableFuture
     - 1)实现异步API（将任务交给另一线程完成，该线程与调用方异步，通过回调函数或阻塞的方式取得任务结果)
     - 2)将批量同步操作转为异步操作（并行流/CompletableFuture)
     - 3)多个异步任务合并
-#### 时间日期API
+## 时间日期API
 - 新的java.time包包含了所有关于日期、时间、时区、Instant（跟日期类似但是精确到纳秒)、duration（持续时间)和时钟操作的类。新设计的API认真考虑了这些类的不变性（从java.util.Calendar吸取的教训)，如果某个实例需要修改，则返回一个新的对象。
 
-#### 接口中的默认方法与静态方法
+## 接口中的默认方法与静态方法
 - 默认方法使得开发者可以在不破坏二进制兼容性的前提下，往现存接口中添加新的方法，即不强制那些实现了该接口的类也同时实现这个新加的方法。
 - 默认方法允许在不打破现有继承体系的基础上改进接口。该特性在官方库中的应用是：给java.util.Collection接口添加新方法，如stream()、parallelStream()、forEach()和removeIf()等等。
 
 
 - 
 
-### Java9
-#### 模块化
+# 1.21 Java9
+## 模块化
 - 提供了类似于OSGI框架的功能，模块之间存在相互的依赖关系，可以导出一个公共的API，并且隐藏实现的细节，Java提供该功能的主要的动机在于，减少内存的开销，在JVM启动的时候，至少会有30～60MB的内存加载，主要原因是JVM需要加载rt.jar，不管其中的类是否被classloader加载，第一步整个jar都会被JVM加载到内存当中去，模块化可以根据模块的需要加载程序运行需要的class。
 - 在引入了模块系统之后，JDK 被重新组织成 94 个模块。Java 应用可以通过新增的 jlink 工具，创建出只包含所依赖的 JDK 模块的自定义运行时镜像。这样可以极大的减少 Java 运行时环境的大小。使得JDK可以在更小的设备中使用。采用模块化系统的应用程序只需要这些应用程序所需的那部分JDK模块，而非是整个JDK框架了。
-#### HTTP/2
+## HTTP/2
 - Java 9的版本中引入了一个新的package:java.net.http，里面提供了对Http访问很好的支持，不仅支持Http1.1而且还支持HTTP/2，以及WebSocket，据说性能特别好。
-#### JShell
+## JShell
 - java9引入了jshell这个交互性工具，让Java也可以像脚本语言一样来运行，可以从控制台启动 jshell ，在 jshell 中直接输入表达式并查看其执行结果。当需要测试一个方法的运行效果，或是快速的对表达式进行求值时，jshell 都非常实用。
 - 除了表达式之外，还可以创建 Java 类和方法。jshell 也有基本的代码完成功能。
-#### 不可变集合工厂方法
+## 不可变集合工厂方法
 - Java 9增加了List.of()、Set.of()、Map.of()和Map.ofEntries()等工厂方法来创建不可变集合。
-#### 私有接口方法
+## 私有接口方法
 - Java 8 为我们提供了接口的默认方法和静态方法，接口也可以包含行为，而不仅仅是方法定义。
 - 默认方法和静态方法可以共享接口中的私有方法，因此避免了代码冗余，这也使代码更加清晰。如果私有方法是静态的，那这个方法就属于这个接口的。并且没有静态的私有方法只能被在接口中的实例调用。
-#### 多版本兼容 JAR
+## 多版本兼容 JAR
     - 当一个新版本的 Java 出现的时候，你的库用户要花费很长时间才会切换到这个新的版本。这就意味着库要去向后兼容你想要支持的最老的 Java 版本 (许多情况下就是 Java 6 或者 7)。这实际上意味着未来的很长一段时间，你都不能在库中运用 Java 9 所提供的新特性。幸运的是，多版本兼容 JAR 功能能让你创建仅在特定版本的 Java 环境中运行库程序时选择使用的 class 版本。
 
-#### 统一 JVM 日志
+## 统一 JVM 日志
 - Java 9 中 ，JVM 有了统一的日志记录系统，可以使用新的命令行选项-Xlog 来控制 JVM 上 所有组件的日志记录。该日志记录系统可以设置输出的日志消息的标签、级别、修饰符和输出目标等。
-#### 垃圾收集机制
+## 垃圾收集机制
 - Java 9 移除了在 Java 8 中 被废弃的垃圾回收器配置组合，同时把G1设为默认的垃圾回收器实现。替代了之前默认使用的Parallel GC，对于这个改变，evens的评论是酱紫的：这项变更是很重要的，因为相对于Parallel来说，G1会在应用线程上做更多的事情，而Parallel几乎没有在应用线程上做任何事情，它基本上完全依赖GC线程完成所有的内存管理。这意味着切换到G1将会为应用线程带来额外的工作，从而直接影响到应用的性能
 
-#### I/O 流新特性
+## I/O 流新特性
 - java.io.InputStream 中增加了新的方法来读取和复制 InputStream 中包含的数据。
 - readAllBytes：读取 InputStream 中的所有剩余字节。
 - readNBytes： 从 InputStream 中读取指定数量的字节到数组中。
 - transferTo：读取 InputStream 中的全部字节并写入到指定的 OutputStream 中 。
 
 - 
-
-## 设计模式
-### 设计原则
-#### 单一职责原则
-- 不要存在多于一个导致类变更的原因。
-- 总结：一个类只负责一项职责。
-#### 里氏替换原则
-- 1.子类可以实现父类的抽象方法，但不能覆盖父类的非抽象方法。
-- 2.子类中可以增加自己特有的方法。
-- 3.当子类的方法重载父类的方法时，方法的前置条件（即方法的形参)要比父类方法的输入参数更宽松。
-- 4.当子类的方法实现父类的抽象方法时，方法的后置条件（即方法的返回值)要比父类更严格。
-- 总结：所有引用父类的地方必须能透明地使用其子类对象
-#### 依赖倒置原则/面向接口编程
-- 高层模块不应该依赖低层模块，二者都应该依赖其抽象；抽象不应该依赖细节；细节应该依赖抽象。
-#### 接口隔离原则
-- 使用多个专门的接口来替代一个统一的接口；
-- 一个类对另一个类的依赖应建立在最小的接口上
-#### 迪米特法则
-- 一个类对自己依赖的类知道的越少越好。也就是说，对于被依赖的类来说，无论逻辑多么复杂，都尽量地的将逻辑封装在类的内部
-#### 开闭原则
-- 对扩展开放，对修改关闭
-- 用抽象构建框架，用实现扩展细节
-#### 合成复用原则/组合优于继承
-- 尽量多使用组合和聚合，尽量少使用甚至不使用继承关系
-- 
-
-### 分类
-- 创建型模式，共五种：工厂方法模式、抽象工厂模式、单例模式、建造者模式、原型模式。
-- 结构型模式，共七种：适配器模式、装饰器模式、代理模式、外观模式、桥接模式、组合模式、享元模式。
-- 行为型模式，共十一种：策略模式、模板方法模式、观察者模式、迭代器模式、责任链模式、命令模式、备忘录模式、状态模式、访问者模式、中介者模式、解释器模式。
-
-### 创建型设计模式
-#### 工厂方法模式
-##### 介绍
-- 工厂模式分为简单（静态)工厂模式、工厂方法模式和抽象工厂模式
-
-    - 1) 工厂类角色：这是本模式的核心，含有一定的商业逻辑和判断逻辑。在java中它往往由一个具体类实现。
-    - 2) 抽象产品角色：它一般是具体产品继承的父类或者实现的接口。在java中由接口或者抽象类来实现。
-    - 3) 具体产品角色：工厂类所创建的对象就是此角色的实例。在java中由一个具体类实现。
-
-- 简单工厂模式：一个工厂类处于对产品类实例化调用的中心位置上,它决定那一个产品类应当被实例化,   
-- 工厂方法模式：一个抽象产品类，可以派生出多个具体产品类。 　　
--               一个抽象工厂类，可以派生出多个具体工厂类。 
-- 　　          每个具体工厂类只能创建一个具体产品类的实例。
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)客户不需要知道要使用的对象的创建过程
-    - 2)客户使用的对象存在变动的可能，或者根本就不知道使用哪一个具体对象
-- 缺点：
-- 类的数量膨胀
-- 
-
-#### 抽象工厂模式
-##### 介绍
-- 抽象工厂模式：多个抽象产品类，每个抽象产品类可以派生出多个具体产品类。 
-- 　　          一个抽象工厂类，可以派生出多个具体工厂类。 
-- 　　          每个具体工厂类可以创建多个具体产品类的实例。 
-- 区别：		  工厂方法模式只有一个抽象产品类，而抽象工厂模式有多个。
-- 　　          工厂方法模式的具体工厂类只能创建一个具体产品类的实例，而抽象工厂模式可以创建多个。
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)系统中有多个产品族，而系统一次只能消费其中一族产品
-    - 2)同属于同一个产品族的产品一起使用
-
-- 
-
-#### 单例模式
-##### 介绍
-- 通过单例模式可以保证系统中，应用该模式的类一个类只有一个实例。即一个类只有一个对象实例
-##### UML
-
-##### 适用场景与优缺点
-- 使用场景：
-    - 1)当类只有一个实例且客户可以从一个众所周知的访问点 访问它
-    - 2)当这个唯一实例应该是通过子类化可扩展的，且客户应该无序更改代码就能使用一个扩展的实例
-
-- 优点：
-    - 1)对唯一实例的受控访问
-    - 2)缩小命名空间，避免命名污染
-    - 3)允许单例有子类
-    - 4)允许可变数目的实例
-
-
-```
-public class Car{
-```
-
-- 	//懒汉式，线程不安全
-
-```
-	private static Car instance;
-```
-
-
-```
-	private Car() {}
-```
-
-
-```
-	public static Car getInstance() {
-```
-
-- 		if(instance == null) {
-- 			instance = new Car();
-- 		}
-- 		return instance;
-- 	}	
-- 这种写法lazy loading很明显，但是致命的是在多线程不能正常工作。
-
-- 	//懒汉式，线程安全
-
-```
-	private static Car instance ;
-```
-
-
-```
-	private Car() {}
-```
-
-
-```
-	public static synchronized Car getInstance(){
-```
-
-- 		if(instance == null) {
-- 			instance = new Car();
-- 		}
-- 		return instance;
-- 	}	
-- 这种写法能够在多线程中很好的工作，而且看起来它也具备很好的lazy loading，但是，遗憾的是，效率很低，99%情况下不需要同步。
-
-- 	//饿汉式
-
-```
-	private static Car instance = new Car();
-```
-
-
-```
-	private Car() {}
-```
-
-
-```
-	public static Car getInstance() {
-```
-
-- 		return instance;
-- 	}
-- 这种方式基于classloder机制避免了多线程的同步问题，不过，instance在类装载时就实例化，虽然导致类装载的原因有很多种，在单例模式中大多数都是调用getInstance方法， 但是也不能确定有其他的方式（或者其他的静态方法)导致类装载，这时候初始化instance显然没有达到lazy loading的效果。
-
-- 	//饿汉式变种
-
-```
-	private static Car instance;
-```
-
-- 	static {
-- 		instance = new Car();
-- 	}
-
-```
-	private Car() {}
-```
-
-
-```
-	public static Car getInstance() {
-```
-
-- 		return instance;
-- 	}
-- 表面上看起来差别挺大，其实更第三种方式差不多，都是在类初始化即实例化instance。
-- 	
-- //静态内部类（类的加载是线程安全的)
-
-```
-	private static  class CarHolder{
-```
-
-
-```
-		private static final Car instance = new Car();
-```
-
-- 	}
-
-```
-	private Car() {}
-```
-
-
-```
-	public static Car getInstance() {
-```
-
-- 		return CarHolder.instance;
-- 	}	
-- 这种方式同样利用了classloder的机制来保证初始化instance时只有一个线程，它跟第三种和第四种方式不同的是（很细微的差别)：第三种和第四种方式是只要Singleton类被装载了，那么instance就会被实例化（没有达到lazy loading效果)，而这种方式是Singleton类被装载了，instance不一定被初始化。因为SingletonHolder类没有被主动使用，只有显示通过调用getInstance方法时，才会显示装载SingletonHolder类，从而实例化instance。想象一下，如果实例化instance很消耗资源，我想让他延迟加载，另外一方面，我不希望在Singleton类加载时就实例化，因为我不能确保Singleton类还可能在其他的地方被主动使用从而被加载，那么这个时候实例化instance显然是不合适的。这个时候，这种方式相比第三和第四种方式就显得很合理。
-- 	
-- // 枚举
-
-```
-public enum Car {
-```
-
--     INSTANCE;
-- }
-- //双重校验锁
-
-```
-	private volatile static Car instance;
-```
-
-
-```
-	private Car() {}
-```
-
-
-```
-	public static Car getInstance() {
-```
-
-- 		if(instance == null) {
-- 			synchronized(Car.class) {
-- 				if(instance == null) {
-- 					instance = new Car();
-- 				}
-- 			}
-- 		}
-- 		return instance;
-- 	}
-- 	这个是第二种方式的升级版，俗称双重检查锁定。
-- 所谓双重检查加锁机制，指的是：并不是每次进入getInstance方法都需要同步， 而是先不同步，进入方法过后，先检查实例是否存在，如果不存在才进入下面的同步块， 这是第一重检查。进入同步块后，再次检查实例是否存在，如果不存在，就在同步的情况下创建一个实例，这是第二重检查。这样一来，就只需要同步一次了，从而减少了多次在同步情况下进行判断所浪费的时间。
--     双重检查加锁机制的实现会使用一个关键字volatile，它的意思是：被volatile
-- 修饰的变量的值，将不会被本地线程缓存，所有对该变量的读写都是直接操作共享内存，从而确保多个线程能正确的处理该变量。
-- 说明：由于volatile关键字可能会屏蔽掉虚拟机中的一些必要的代码优化，所以运行效率并不是很高。因此一般建议，没有特别的需要，不要使用。也就是说，虽然可以使用”双重检查加锁“机制来实现线程安全的单例，但并不建议大量采用，可以根据情况来选用。
-- }
-- 
-
-#### 建造者模式
-##### 介绍
-- 将一个复杂对象的创建和它的表示分离，使得同样的创建过程可以创建不同的表示。
-
-- Builder用于构建组件
-- Director负责装配
-- 客户端通过Director来获得最终产品，Director与Builder打交道，持有一个Builder的引用。
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)当创建复杂对象的算法应该独立于该对象的组成部分以及它们的赚个屁方式时
-    - 2)当构造过程必须允许被构造的对象有不同的表示时
-
-- 优点：
-    - 1)可以改变一个对象的内部表示：Builder对象提供给Director一个构造产品的抽象接口，该接口使得Buildewr可以隐藏这个产品的表示和内部结构，同时隐藏了该产品是如何装配的。
-    - 2)将构造代码与表示代码分离
-    - 3)可以对构造过程进行更精细化的控制
-- 
-
-#### 原型模式
-##### 介绍
-
-##### UML
-
-##### 适用场景与优缺点
-- • 当要实例化的类是在运行时刻指定时，例如，通过动态装载；
-- • 为了避免创建一个与产品类层次平行的工厂类层次时；
-- • 当一个类的实例只能有几个不同状态组合中的一种时。建立相应数目的原型并克隆它们可能比每次用合适的状态手工实例化该类更方便一些。
-
-- 优点：
-- 性能优良。原型模式是在内存二进制流的拷贝，要比直接new一个对象性能好很多，特别是要在一个循环体内产生大量的对象时，原型模式可以更好地体现其优点。
-- 缺点：
-- 逃避构造函数的约束。这既是它的优点也是缺点，直接在内存中拷贝，构造函数是不会执行的。优点就是减少了约束，缺点也是减少了约束，需要大家在实际应用时考虑。
-
-- 
-
-### 结构型设计模式
-#### 适配器模式
-##### 介绍
-- 将一个类的接口转换成客户所期待的另一种接口
-
-- Adapter可以组合+实现（对象适配器方式)，也可以继承+实现（类适配器方式)。但是继承不如组合好，因此尽量使用组合+实现。
-
-##### UML
-
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)想使用一个已存在的类，而它的接口不符合你的需求
-    - 2)想创建一个可以复用的类，该类可以与不相关的类或不可预见的类协同工作
-#### 装饰器模式
-##### 介绍
-
-
-- 
-
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)在不影响其他对象的情况下，以动态透明的方式给单个对象添加职责
-    - 2)处理那些可以撤销的职责
-    - 3)当不能通过生成子类的方法进行扩充时
-- 优点：
-    - 1)比继承更加灵活，可以用添加和分离的方式，用装饰在运行时 增加和删除职责
-    - 2)避免在层次结构高的类有太多特征，用装饰器为其逐渐地添加功能
-- 
-
-#### 代理模式
-##### 介绍
-- 代理可以分为静态代理和动态代理
-- 为其他对象提供一种代理以控制对这个对象的访问。
-为了一个对象提供一个替身或者占位符，以控制对这个对象的访问
-
-- * 远程代理能够控制访问远程对象(RMI)
-- * 虚拟代理控制访问创建开销大的资源（先创建一个资源消耗较小的对象表示，真实对象只在需要时才会被创建)
-- * 保护代理基于权限控制对资源的访问
-##### UML
-
-##### 适用场景与优缺点
-- 使用场景：
-- 按职责来划分，通常有以下使用场景： 1、远程代理。 2、虚拟代理。 3、Copy-on-Write 代理。 4、保护（Protect or Access)代理。 5、Cache代理。 6、防火墙（Firewall)代理。 7、同步化（Synchronization)代理。 8、智能引用（Smart Reference)代理。
-
-- 优点：
-- 1、职责清晰。 2、高扩展性。 3、智能化。
-- 缺点： 
-- 1、由于在客户端和真实主题之间增加了代理对象，因此有些类型的代理模式可能会造成请求的处理速度变慢。 
-- 2、实现代理模式需要额外的工作，有些代理模式的实现非常复杂。
-#### 外观模式
-##### 介绍
-- 为子系统的一组接口提供一个一致的界面，定义了一个高层接口，这一接口使得子系统更加容易使用。
-
-- 遵循了迪米特法则：
-
-```
-通俗的来讲，就是一个类对自己依赖的类知道的越少越好。也就是说，对于被依赖的类来说，无论逻辑多么复杂，都尽量地的将逻辑封装在类的内部，对外除了提供的public方法，不对外泄漏任何信息。
-```
-
-- 外观模式就是一种较好的封装
-- 是整体和子组件之间的关系，外部类不应该与一个类的子组件过多的接触，应该尽可能与整体打交道。
-
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)为一个复杂子系统提供一个简单接口
-    - 2)客户与抽象类的实现部分之间存在着很大的依赖性，引入Facade将子系统与客户解耦，提高了子系统的独立性和可移植性
-- 优点：
-    - 1)对客户屏蔽了子系统组件，减少客户处理的对象数目，并使得子系统使用起来更加容易
-    - 2)实现了子系统与客户之间的松耦合
-    - 3)降低了大型软件中的编译依赖性
-    - 4)只是提供了一个访问子系统的统一入口，并不影响客户直接使用子系统
-#### 桥接模式
-##### 介绍
-- 处理多层继承结构，处理多维度变化的场景，将各个维度设计成独立的继承结构，使各个维度可以独立地扩展，在抽象层建立关联。
-- 一个维度的父类持有另一个维度的接口的引用（使用组合代替了继承)
-
-
-- 希望有一个Bridge类来将类型维度和品牌维度连接起来，这样增加类型和增加品牌不会影响对方。
-- 两种变化以上的情况应该考虑桥接模式
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-- 1．如果一个系统需要在构件的抽象化角色和具体化角色之间增加更多的灵活性，避免在两个层次之间建立静态的联系。
-- 2．设计要求实现化角色的任何改变不应当影响客户端，或者说实现化角色的改变对客户端是完全透明的。
-- 3．一个构件有多于一个的抽象化角色和实现化角色，系统需要它们之间进行动态耦合。
-- 4．虽然在系统中使用继承是没有问题的，但是由于抽象化角色和具体化角色需要独立变化，设计要求需要独立管理这两者。
-
-
-- 
-
-#### 组合模式（树形结构)
-##### 介绍
-
-- 无子节点的是叶子，有子节点的是容器
-- 叶子和容器的共同点抽象为Component组件
-- 每个容器持有一个Component的List引用，包含它的所有子节点。
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)想表示对象的层次结构
-    - 2)希望客户忽略组合对象与单一对象的不同，用户将统一使用组合结构中的所有对象
-- 优点：
-    - 1)定义了包含基本对象和组合对象的类层次结构
-    - 2)简化客户代码，客户可以一致地使用组合结构和单个对象
-    - 3)更容易添加新类型的组件
-#### 享元模式
-##### 介绍
-
-
-- 将相同部分放在一个类中，工厂持有一个Map，可以创建相同部分，如果已持有那么直接返回。
-- 不同部分单独设计一个类，可以作为相同部分类的方法的参数传入
-- 将一个对象拆成两部分（成员变量拆成两部分)：相同部分和不同部分。相同部分使用工厂创建，进行共享；不同部分作为参数传入
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：池化 内存池 数据库连接池 线程池
-- 优点：
-    - 1)极大减少内存中对象的数量
-    - 2)相同或相似对象内存中只存一份，节省内存
-    - 3)外部状态相对独立，不影响内部状态
-
-- 缺点：
-    - 1)模式较复杂，使程序逻辑复杂化
-    - 2)读取外部状态使运行时间变长，用时间换取了空间
-
-- 
-
-### 行为型设计模式
-#### 策略模式
-##### 介绍
-- 策略模式定义了一系列的算法，并将每一个算法封装起来，而且使他们可以相互替换，让算法独立于使用它的客户而独立变化。
-- 环境类(Context):用一个ConcreteStrategy对象来配置。维护一个对Strategy对象的引用。可定义一个接口来让Strategy访问它的数据。
-- 抽象策略类(Strategy):定义所有支持的算法的公共接口。 Context使用这个接口来调用某ConcreteStrategy定义的算法。
-- 具体策略类(ConcreteStrategy):以Strategy接口实现某具体算法。
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-- 实现某一个功能由多种算法或者策略，我们可以根据环境或者条件的不同选择不同的算法或者策略来完成该功能
-- 优点：
-    - 1)Strategy类层次为Context定义了一系列的可供重用的算法或行为。继承有助于析取出这些算法中的公共功能。
-    - 2)提供了可以替换继承关系的方法
-    - 3)消除if-else
-#### 模板方法模式
-##### 介绍
-
-
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)一次性实现一个算法的不变部分，并将可变部分留给子类来实现
-    - 2)个子类中公共的行为提取出来并集中到一个公共父类中以避免重复
-    - 3)控制子类扩展，只允许在某些点进行扩展
-
-- 优点：
-    - 1)在一个父类中形式化地定义算法，由它的子类实现细节的处理
-    - 2)是一个代码复用的基本技术
-    - 3)控制翻转（好莱坞原则)，父类调用子类的操作，通过对子类的扩展来增加新的行为，符合开闭原则
-#### 观察者模式
-##### 介绍
-- 也称为发布-订阅模式。
-- 在此种模式中，一个目标物件管理所有相依于它的观察者物件，并且在它本身的状态改变时主动发出通知。这通常透过呼叫各观察者所提供的方法来实现。此种模式通常被用来实现事件处理系统。
-- 与Reactor模式非常类似，不过，观察者模式与单个事件源关联，而反应器模式则与多个事件源关联。
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)当一个对象的改变需要通知其他对象，而且它不知道具体有多少个对象有待通知时
-    - 2)当一个抽象模型有两个方面，其中一个方面依赖于另一方面，将这二者封装在独立的对象中国以使它们可以独立地改变和服用
-- 优点：
-    - 1)独立地改变目标和观察者，解耦
-    - 2)是吸纳表示层和数据逻辑层分离（表示层是观察者，逻辑层是主题)
-#### 迭代器模式
-##### 介绍
-- 找到一种不同容器的统一的遍历方式，定义一个接口，所有可以提供遍历方式的容器都实现这个接口，返回一个迭代器，然后所有的迭代器的接口是一致的。
-
-- 所有的容器都可以通过iterator方法返回一个迭代器Iterator，这个迭代器对外暴露的接口是一致的，因此可以保证对所有的容器遍历方法是一致的，仅需得到这个容器的迭代器即可，而各个容器对迭代器的实现是不同的，即遍历方式是不同的。迭代器模式可以将各个容器的遍历方式的调用方式统一起来，隐藏了内部遍历的实现细节。
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)访问一个聚合对象的内容而无需暴露它的内部表示
-    - 2)需要为聚合对象提供多种遍历方式
-    - 3)为遍历不同的聚合结构提供一个统一的接口
-
-- 优点：
-    - 1)支持以不同的方式遍历一个聚合对象
-    - 2)简化聚合接口
-    - 3)方便添加新的聚合类和迭代器类
-#### 责任链模式
-##### 介绍
-- 使多个处理器对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系，将这些处理器对象连成一条链，并沿这条链传递请求，直到有一个处理器对象处理它为止
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)有多个处理器对象可以处理一个请求，哪个处理器对象处理该请求在运行时动态确定
-    - 2)在不明确指定接收者的情况下，向多个处理器对象中的一个提交请求
-    - 3)可以动态指定一组处理器对象处理请求
-
-- 优点：
-    - 1)降低耦合，使得 请求发送者无需知道是哪个处理器对象处理请求
-    - 2)简化对象的相互连接
-    - 3)增强了给对象指派责任的灵活性
-    - 4)方便添加新的请求处理类
-#### 命令模式
-##### 介绍
-- 命令模式把一个请求或者操作封装到一个对象中，把发出命令的责任和执行命令的责任分割开，委派给不同的对象，可降低行为请求者与行为实现者之间耦合度。从使用角度来看就是请求者把接口实现类作为参数传给使用者，使用者直接调用这个接口的方法，而不用关心具体执行的那个命令。
-
-- Command模式将操作的执行逻辑封装到一个个Command对象中，解耦了操作发起者和操作执行逻辑之间的耦合关系：操作发起者要进行一个操作，不用关心具体的执行逻辑，只需创建一个相应的Command实例，调用它的执行接口即可。而在swing中，与界面交互的各种操作，比如插入，删除等被称之为Edit，实际上就是Command。
-- 使用undo包很简单，主要操作步骤如下：
-- 1、创建CommandManager实例（持有Command的undo栈和redo栈)；
-- 2、创建各种实现Command的具体操作类；
-- 3、调用某种操作时，创建一个具体操作类的实例，加入CommandManager；
-- 4、在Undo/Redo时，直接调用CommandManager的undo/redo方法。
-##### UML
-
-- 黑色箭头表示持有，关联关系 Client持有Invoker
-- 菱形箭头也是持有，聚合关系 Invoker持有Command
-- 白色箭头是继承，ConcreteCommand继承了Command
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)系统需要将请求调用者和请求接收者解耦，使得调用者和接收者不直接交互
-    - 2)系统需要在不同的时间制定请求，将请求排序和执行请求
-    - 3)系统需要支持undo和redo操作
-    - 4)系统需要将一组操作组合在一起
-
-- 优点：
-    - 1)降低系统的耦合度，调用者和接收者解耦
-    - 2)Command是头等对象，可以被操纵和扩展
-    - 3)组合命令
-    - 4)方便实现undo和redo
-- 
-
-#### 备忘录模式
-##### 介绍
-
-- Originate是实体类，并负责创建和恢复Memento（比如JavaBean)
-- Memento负责保存对象的状态
-- CareTaker 负责存储Memento（一个或一系列)（多条历史记录)
-- Originate除了对象的属性和setter getter之外，还有创建和恢复Memento的方法
-- Memento也持有对象的所有属性和setter getter，它的构造方法是由Originate对象得到其内部状态。
-- CareTaker持有一个或一组Memento，并提供setter and getter
-
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-- 1、需要保存/恢复数据的相关状态场景。 
-- 2、提供一个可回滚的操作。
-
-- 优点：
-- 1、给用户提供了一种可以恢复状态的机制，可以使用户能够比较方便地回到某个历史的状态。 
-- 2、实现了信息的封装，使得用户不需要关心状态的保存细节。
-
-- 缺点：消耗资源。如果类的成员变量过多，势必会占用比较大的资源，而且每一次保存都会消耗一定的内存。
-#### 状态模式
-##### 介绍
-
-##### UML
-
-##### 适用场景与优缺点
-- 适用场景：
-    - 1)一个对象的行为取决于它的状态
-    - 2)代码中包含大量的与对象状态有关的条件语句
-
-- 优点：
-    - 1)将与特定状态相关的行为局部化，并且将不同状态的行为分割开来
-    - 2)使得状态转换显式化
-    - 3)State对象可被共享
-
-- 
-
-#### 访问者模式
-##### 介绍
-
-##### UML
-
-##### 适用场景与优缺点
-
-#### 中介者模式
-##### 介绍
-- 解耦多个同事对象之间的交互关系。
-- 每个同事对象都持有中介者对象的引用，只跟中介者打交道。我们通过中介者统一管理这些交互关系。
-
-- 每个同事类都持有一个中介者类的引用。
-##### UML
-
-- 将多对多的关系解耦后转为一对多的关系，每个对象和中介者打交道，不直接和其他对象打交道。
-- 如果关系比较简单，那么没有必要使用中介者模式，反而会复杂化。
-##### 适用场景与优缺点
-- MVC中的C就是中介者
-
-- 适用场景：
-    - 1)系统中对象之间存在着复杂的引用关系
-    - 2)一组对象以定义良好但复杂的方式进行通信
-    - 3)一个对象引用其他很多对象并直接与这些对象通信，导致难以复用该对象
-
-- 优点：
-    - 1)减少子类生成
-    - 2)简化同事类的设计和实现
-    - 3)简化对象协议（一对多代替多对多)
-    - 4)对对象如何协作进行了抽象
-    - 5)使控制集中化（将交互复杂性变为中介者的复杂性)
-#### 解释器模式
-##### 介绍
-
-##### UML
-
-##### 适用场景与优缺点
-
-
-### 设计模式的区分
-#### 代理模式和装饰器区别
-- 装饰器模式关注于在一个对象上动态的添加方法，然而代理模式关注于控制对对象的访问。换句话说，用代理模式，代理类（proxy class)可以对它的客户隐藏一个对象的具体信息。
-- 因此，当使用代理模式的时候，我们常常在一个代理类中创建一个对象的实例。并且，当我们使用装饰器模式的时候，我们通常的做法是将原始对象作为一个参数传给装饰者的构造器。
-
-- 相同点：都是为被代理(被装饰)的类扩充新的功能。 
-- 不同点：代理模式具有控制被代理类的访问等性质，而装饰模式紧紧是单纯的扩充被装饰的类。所以区别仅仅在是否对被代理/被装饰的类进行了控制而已。
-
-#### 适配器模式和代理模式的区别
-- 适配器模式，一个适配允许通常因为接口不兼容而不能在一起工作的类工作在一起，做法是将类自己的接口包裹在一个已存在的类中。
-
-- 装饰器模式，原有的不能满足现有的需求，对原有的进行增强。
-
-- 代理模式，同一个类而去调用另一个类的方法，不对这个方法进行直接操作，控制访问。
-#### 抽象工厂和工厂方法模式的区别
-- 工厂方法：创建某个具体产品
-- 抽象工厂：创建某个产品族中的系列产品
-
-工厂方法模式	抽象工厂模式
-针对的是一个产品等级结构	针对的是面向多个产品等级结构
-一个抽象产品类	多个抽象产品类
-可以派生出多个具体产品类	每个抽象产品类可以派生出多个具体产品类
-一个抽象工厂类，可以派生出多个具体工厂类	一个抽象工厂类，可以派生出多个具体工厂类
-每个具体工厂类只能创建一个具体产品类的实例	每个具体工厂类可以创建多个具体产品类的实例
-
-- 
-
-### JDK中的设计模式（17)
-#### 创建型
-    - 1)工厂方法
-- Collection.iterator() 由具体的聚集类来确定使用哪一个Iterator
-    - 2)单例模式
-- Runtime.getRuntime()
-    - 3)建造者模式
-- StringBuilder
-    - 4)原型模式
-- Java中的Cloneable
-#### 结构性
-    - 1)适配器模式
-- InputStreamReader
-- OutputStreamWriter
-- RunnableAdapter
-    - 2)装饰器模式
-- io包 FileInputStream BufferedInputStream
-    - 3)代理模式
-- 动态代理；RMI
-    - 4)外观模式
-- java.util.logging
-    - 5)桥接模式
-- JDBC
-    - 6)组合模式
-- dom
-    - 7)享元模式
-- Integer.valueOf
-#### 行为型
-    - 1)策略模式
-- 线程池的四种拒绝策略
-    - 2)模板方法模式
-- AbstractList、AbstractMap等
-- InputStream、OutputStream
-- AQS
-    - 3)观察者模式
-- Swing中的Listener
-    - 4)迭代器模式
-- 集合类中的iterator
-    - 5)责任链模式
-- J2EE中的Filter
-    - 6)命令模式
-- Runnable、Callable，ThreadPoolExecutor
-    - 7)备忘录模式
-    - 8)状态模式
-    - 9)访问者模式
-- 10)中介者模式
-    - 11)解释器模式
-- 
-
-### Spring中的设计模式（6)
-    - 1)抽象工厂模式：
-- BeanFactory
-    - 2)代理模式：
-- AOP
-    - 3)模板方法模式：
-- AbstractApplicationContext中定义了一系列的抽象方法，比如refreshBeanFactory、closeBeanFactory、getBeanFactory。
-    - 4)单例模式：
-- Spring可以管理单例对象，控制对象为单例
-    - 5)原型模式：
-- Spring可以管理多例对象，控制对象为prototype
-    - 6)适配器模式：
-- Advice与Interceptor的适配
-- Adapter类接口：Target
-
-```
-public interface AdvisorAdapter {
-```
-
--  
-- boolean supportsAdvice(Advice advice);
--  
--       MethodInterceptor getInterceptor(Advisor advisor);
--  
-- } MethodBeforeAdviceAdapter类，Adapter
-- class MethodBeforeAdviceAdapter implements AdvisorAdapter, Serializable {
--  
-
-```
-      public boolean supportsAdvice(Advice advice) {
-```
-
--             return (advice instanceof MethodBeforeAdvice);
--       }
--  
-
-```
-      public MethodInterceptor getInterceptor(Advisor advisor) {
-```
-
--             MethodBeforeAdvice advice = (MethodBeforeAdvice) advisor.getAdvice();
--       return new MethodBeforeAdviceInterceptor(advice);
--       }
--  
-- }
